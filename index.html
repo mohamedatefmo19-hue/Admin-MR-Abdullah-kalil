@@ -4,296 +4,800 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | مستر عبدالله خليل</title>
-    <!-- Firebase -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <!-- Cloudinary -->
-    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <!-- Cloudinary Widget -->
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
     <!-- OneSignal -->
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <style>
-        :root { --bg-primary:#030310; --bg-secondary:#080820; --glass-bg:rgba(255,255,255,0.03); --glass-border:rgba(255,255,255,0.06); --glass-hover:rgba(255,255,255,0.05); --text-primary:#f0f0f5; --text-secondary:#b0b0c8; --text-muted:#6b6b8a; --accent-1:#4da8da; --accent-2:#7c5ce7; --accent-3:#22d3bb; --accent-gradient:linear-gradient(135deg, #4da8da 0%, #7c5ce7 50%, #22d3bb 100%); --shadow-lg:0 20px 60px rgba(0,0,0,0.7); --radius-md:14px; --radius-lg:20px; --font-ar:'Cairo', sans-serif; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:var(--font-ar); background:var(--bg-primary); color:var(--text-primary); display:flex; min-height:100vh; }
-        .sidebar { width:260px; background:rgba(10,10,30,0.7); backdrop-filter:blur(40px); border-left:1px solid var(--glass-border); padding:25px 16px; display:flex; flex-direction:column; gap:4px; }
-        .sidebar .logo { text-align:center; margin-bottom:20px; }
-        .sidebar .logo img { width:60px; height:60px; border-radius:14px; background:var(--accent-gradient); }
-        .sidebar nav a { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:30px; color:var(--text-secondary); text-decoration:none; font-weight:500; cursor:pointer; transition:0.2s; }
-        .sidebar nav a:hover, .sidebar nav a.active { color:#fff; background:rgba(255,255,255,0.06); }
-        .main { flex:1; display:flex; flex-direction:column; overflow-y:auto; max-height:100vh; }
-        .top-bar { padding:14px 24px; background:rgba(10,10,26,0.7); backdrop-filter:blur(30px); border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; }
-        .btn { padding:8px 18px; border-radius:30px; font-family:var(--font-ar); font-weight:600; font-size:0.8rem; border:none; cursor:pointer; background:transparent; color:var(--text-primary); border:1.5px solid var(--glass-border); transition:0.3s; display:inline-flex; align-items:center; gap:6px; }
-        .btn-primary { background:var(--accent-gradient); color:#fff; border:none; box-shadow:0 6px 20px rgba(124,92,231,0.4); }
-        .btn-primary:hover { box-shadow:0 10px 30px rgba(124,92,231,0.6); transform:translateY(-2px); }
-        .btn-danger { background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.4); color:#f87171; }
-        .content { padding:24px; }
-        .tab-panel { display:none; animation: fadeIn 0.3s ease; }
-        .tab-panel.active { display:block; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .stats-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; margin-bottom:24px; }
-        .stat-card { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px; backdrop-filter:blur(15px); }
-        .stat-card .value { font-size:2rem; font-weight:800; background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .table-wrapper { overflow-x:auto; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); backdrop-filter:blur(15px); margin-top:10px; }
-        table { width:100%; border-collapse:collapse; font-size:0.85rem; min-width:600px; }
-        th, td { padding:12px 16px; text-align:right; border-bottom:1px solid rgba(255,255,255,0.04); }
-        th { color:var(--text-muted); font-weight:600; font-size:0.7rem; text-transform:uppercase; }
-        .badge { padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
-        .badge-success { background:rgba(34,211,187,0.2); color:#22d3bb; }
-        .badge-warning { background:rgba(251,191,36,0.2); color:#fbbf24; }
-        .badge-danger { background:rgba(239,68,68,0.2); color:#f87171; }
-        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; visibility:hidden; transition:0.3s; }
-        .modal-overlay.active { opacity:1; visibility:visible; }
-        .modal { background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:24px; padding:24px; width:90%; max-width:500px; max-height:85vh; overflow-y:auto; }
-        .form-group { margin-bottom:14px; }
-        .form-group label { display:block; font-size:0.8rem; margin-bottom:5px; color:var(--text-secondary); }
-        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border-radius:30px; border:1.5px solid var(--glass-border); background:rgba(255,255,255,0.04); color:#fff; font-family:var(--font-ar); outline:none; }
-        .flex-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-        .toast { position:fixed; bottom:30px; left:30px; background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:14px; padding:14px 20px; z-index:200; animation:slideIn 0.4s ease; }
-        @keyframes slideIn { from { transform:translateX(-100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
-        .menu-toggle { display:none; background:none; border:none; color:#fff; font-size:1.8rem; cursor:pointer; }
-        @media (max-width:768px) { .sidebar { position:fixed; right:-280px; top:0; bottom:0; z-index:50; transition:0.3s; } .sidebar.open { right:0; } .menu-toggle { display:block; } }
+        :root {
+            --bg-primary: #030310;
+            --bg-secondary: #080820;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-hover: rgba(255, 255, 255, 0.05);
+            --text-primary: #f0f0f5;
+            --text-secondary: #b0b0c8;
+            --text-muted: #6b6b8a;
+            --accent-1: #4da8da;
+            --accent-2: #7c5ce7;
+            --accent-3: #22d3bb;
+            --accent-gradient: linear-gradient(135deg, #4da8da 0%, #7c5ce7 50%, #22d3bb 100%);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.7);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --font-ar: 'Cairo', sans-serif;
+            --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: var(--font-ar);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            position: relative;
+        }
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .aurora-bg .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(160px);
+            opacity: 0.16;
+            animation: auroraFloat 28s infinite ease-in-out;
+        }
+        .aurora-bg .orb:nth-child(1) {
+            width: 800px;
+            height: 800px;
+            background: #4da8da;
+            top: -300px;
+            left: -250px;
+        }
+        .aurora-bg .orb:nth-child(2) {
+            width: 700px;
+            height: 700px;
+            background: #7c5ce7;
+            bottom: -250px;
+            right: -250px;
+            animation-delay: -12s;
+        }
+        @keyframes auroraFloat {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(90px, -70px) scale(1.18);
+            }
+            50% {
+                transform: translate(-60px, 80px) scale(0.82);
+            }
+            75% {
+                transform: translate(-80px, -50px) scale(1.1);
+            }
+        }
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 10, 30, 0.7);
+            backdrop-filter: blur(40px);
+            border-left: 1px solid var(--glass-border);
+            padding: 30px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            z-index: 10;
+            transition: transform 0.45s ease;
+            overflow-y: auto;
+        }
+        .sidebar .logo-img {
+            width: 65px;
+            height: 65px;
+            border-radius: var(--radius-md);
+            background: var(--accent-gradient);
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+        }
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: 30px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        .top-bar {
+            padding: 16px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 15;
+        }
+        .btn {
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-family: var(--font-ar);
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1.5px solid var(--glass-border);
+        }
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            color: #fff;
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+        .content-area {
+            padding: 28px;
+            flex: 1;
+        }
+        .tab-panel {
+            display: none;
+            animation: fadeSlideIn 0.4s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+            backdrop-filter: blur(18px);
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(18px);
+            margin-top: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 750px;
+        }
+        th,
+        td {
+            padding: 14px 18px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+        }
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: rgba(34, 211, 187, 0.2);
+            color: #22d3bb;
+        }
+        .badge-warning {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.35s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 30px;
+            width: 92%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            backdrop-filter: blur(35px);
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: 1.5px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-family: var(--font-ar);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .notification-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 16px 22px;
+            z-index: 200;
+            backdrop-filter: blur(25px);
+            font-weight: 600;
+            animation: slideInToast 0.45s ease;
+        }
+        @keyframes slideInToast {
+            from {
+                transform: translateX(-120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                right: -300px;
+                top: 0;
+                bottom: 0;
+                z-index: 50;
+            }
+            .sidebar.open {
+                right: 0;
+            }
+            .main {
+                width: 100%;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-<aside class="sidebar" id="sidebar">
-    <div class="logo"><div id="sidebarLogo">⚛️</div><div style="color:#fff;font-weight:700;">لوحة التحكم</div></div>
-    <nav>
-        <a class="active" data-tab="dashboard">📊 الرئيسية</a>
-        <a data-tab="students">👥 الطلاب</a>
-        <a data-tab="grades">📚 الصفوف</a>
-        <a data-tab="courses">📖 الكورسات</a>
-        <a data-tab="lessons">🎬 المحاضرات</a>
-        <a data-tab="assignments">📝 الواجبات</a>
-        <a data-tab="exams">📋 الامتحانات</a>
-        <a data-tab="questions">❓ الأسئلة</a>
-        <a data-tab="settings">⚙️ الإعدادات</a>
-    </nav>
-</aside>
-<div class="main">
-    <div class="top-bar">
-        <button class="menu-toggle" id="menuToggle">☰</button>
-        <h2 id="tabTitle">الرئيسية</h2>
-        <div><button class="btn btn-primary" onclick="customNotification()">🔔 إشعار</button></div>
+    <div class="aurora-bg">
+        <div class="orb"></div>
+        <div class="orb"></div>
     </div>
-    <div class="content" id="contentArea">
-        <!-- Dashboard -->
-        <div class="tab-panel active" id="tab-dashboard">
-            <div class="stats-grid" id="dashStats"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-area" style="text-align:center;margin-bottom:30px;">
+            <div class="logo-img" id="sidebarLogoPreview">⚛️</div>
+            <div style="font-weight:800;color:#fff;">لوحة التحكم<small style="display:block;font-weight:400;font-size:0.7rem;color:var(--text-muted);">مستر عبدالله خليل</small></div>
         </div>
-        <!-- Students -->
-        <div class="tab-panel" id="tab-students">
-            <div class="flex-row"><input type="text" placeholder="بحث..." id="studentSearch"><select id="studentFilter"><option value="">كل الحالات</option><option>قيد المراجعة</option><option>مفعل</option><option>محظور</option></select></div>
-            <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="studentTable"></tbody></table></div>
+        <nav>
+            <a class="active" data-tab="dashboard">📊 الرئيسية</a>
+            <a data-tab="students">👥 الطلاب</a>
+            <a data-tab="grades">📚 الصفوف</a>
+            <a data-tab="courses">📖 الكورسات</a>
+            <a data-tab="lessons">🎬 المحاضرات</a>
+            <a data-tab="assignments">📝 الواجبات</a>
+            <a data-tab="exams">📋 الامتحانات</a>
+            <a data-tab="questions">❓ الأسئلة</a>
+            <a data-tab="settings">⚙️ الإعدادات</a>
+        </nav>
+    </aside>
+
+    <div class="main">
+        <div class="top-bar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h2 id="tabTitle" style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">📊 لوحة التحكم</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-sm" onclick="customNotification()">🔔 إشعار مخصص</button>
+                <a href="index.html" class="btn btn-sm" target="_blank">الموقع</a>
+            </div>
         </div>
-        <!-- Grades -->
-        <div class="tab-panel" id="tab-grades"><button class="btn btn-primary" onclick="openModal('gradeModal')">➕ إضافة صف</button><div class="table-wrapper" style="margin-top:10px;"><table><thead><tr><th>الاسم</th><th>الصورة</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div></div>
-        <!-- Courses -->
-        <div class="tab-panel" id="tab-courses"><button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button><div class="table-wrapper" style="margin-top:10px;"><table><thead><tr><th>الاسم</th><th>الصف</th><th>النوع</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div></div>
-        <!-- Lessons -->
-        <div class="tab-panel" id="tab-lessons"><button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button><div class="table-wrapper" style="margin-top:10px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div></div>
-        <!-- Assignments -->
-        <div class="tab-panel" id="tab-assignments"><button class="btn btn-primary" onclick="openModal('assignmentModal')">➕ واجب جديد</button><div class="table-wrapper" style="margin-top:10px;"><table><thead><tr><th>الوصف</th><th>المحاضرة</th><th>الأسئلة</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div></div>
-        <!-- Exams -->
-        <div class="tab-panel" id="tab-exams"><button class="btn btn-primary" onclick="openModal('examModal')">➕ امتحان</button><div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الزمن</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div></div>
-        <!-- Questions -->
-        <div class="tab-panel" id="tab-questions"><div class="table-wrapper"><table><thead><tr><th>الطالب</th><th>السؤال</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="questionTable"></tbody></table></div></div>
-        <!-- Settings -->
-        <div class="tab-panel" id="tab-settings">
-            <div style="max-width:600px; display:grid; gap:14px;">
-                <div class="form-group"><label>اسم المنصة</label><input id="setName"></div>
-                <div class="form-group"><label>الشعار</label><input id="setSlogan"></div>
-                <div class="form-group"><label>لوجو</label><button class="btn" onclick="uploadLogo()">رفع</button><img id="logoPreview" style="width:70px;height:70px;border-radius:14px;margin-top:8px;"></div>
-                <div class="form-group"><label>اللون</label><input type="color" id="setColor"></div>
-                <button class="btn btn-primary" onclick="saveSettings()">حفظ</button>
+        <div class="content-area" id="contentArea">
+            <!-- Dashboard Panel -->
+            <div class="tab-panel active" id="tab-dashboard">
+                <div class="stats-grid" id="dashStats"></div>
+                <h3>📋 آخر النشاطات</h3>
+                <div class="table-wrapper"><table><thead><tr><th>الحدث</th><th>التفاصيل</th><th>الوقت</th></tr></thead><tbody id="recentActivity"></tbody></table></div>
+            </div>
+            <!-- Students Panel -->
+            <div class="tab-panel" id="tab-students">
+                <div style="margin-bottom:16px;display:flex;gap:12px;">
+                    <input type="text" placeholder="🔍 بحث..." id="studentSearch" style="width:200px;">
+                    <select id="studentFilter"><option value="">كل الحالات</option><option>قيد المراجعة</option><option>مفعل</option><option>انتظار الدفع</option><option>محظور</option></select>
+                </div>
+                <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="studentTable"></tbody></table></div>
+            </div>
+            <!-- Grades Panel -->
+            <div class="tab-panel" id="tab-grades">
+                <button class="btn btn-primary" onclick="openModal('gradeModal')">➕ إضافة صف</button>
+                <div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الصورة</th><th>اسم الصف</th><th>الكورسات</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div>
+            </div>
+            <!-- Courses Panel -->
+            <div class="tab-panel" id="tab-courses">
+                <button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button>
+                <div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>Banner</th><th>الاسم</th><th>الصف</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div>
+            </div>
+            <!-- Lessons Panel -->
+            <div class="tab-panel" id="tab-lessons">
+                <button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button>
+                <div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div>
+            </div>
+            <!-- Assignments Panel -->
+            <div class="tab-panel" id="tab-assignments">
+                <button class="btn btn-primary" onclick="openAssignmentModal()">➕ إنشاء واجب</button>
+                <div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الوصف</th><th>المحاضرة</th><th>أسئلة</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div>
+            </div>
+            <!-- Exams Panel -->
+            <div class="tab-panel" id="tab-exams">
+                <button class="btn btn-primary" onclick="openModal('examModal')">➕ إنشاء امتحان</button>
+                <div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الاسم</th><th>الزمن</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div>
+            </div>
+            <!-- Questions Panel -->
+            <div class="tab-panel" id="tab-questions">
+                <div class="table-wrapper"><table><thead><tr><th>الطالب</th><th>السؤال</th><th>الحالة</th><th>الرد</th><th>إجراءات</th></tr></thead><tbody id="questionTable"></tbody></table></div>
+            </div>
+            <!-- Settings Panel -->
+            <div class="tab-panel" id="tab-settings">
+                <div style="display:grid;gap:18px;max-width:680px;">
+                    <h3>⚙️ إعدادات المنصة</h3>
+                    <div class="form-group"><label>اسم المنصة</label><input id="settingPlatformName" value="مستر عبدالله خليل"></div>
+                    <div class="form-group"><label>الشعار النصي</label><input id="settingSlogan" value="كيمياء ببساطة"></div>
+                    <div class="form-group"><label>لوجو المنصة</label>
+                        <button class="btn" onclick="uploadLogo()">📷 رفع لوجو</button>
+                        <img id="logoPreview" src="" style="width:85px;height:85px;border-radius:18px;margin-top:10px;background:var(--glass-bg);">
+                    </div>
+                    <div class="form-group"><label>اللون الأساسي</label><input type="color" id="settingPrimaryColor" value="#7c5ce7"></div>
+                    <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modals -->
-<div class="modal-overlay" id="gradeModal"><div class="modal"><h3>صف دراسي</h3><div class="form-group"><input id="gradeName" placeholder="اسم الصف"></div><div class="form-group"><button class="btn btn-sm" onclick="uploadGradeImg()">رفع صورة</button><input id="gradeImg" placeholder="الرابط" readonly></div><div class="flex-row"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
-<div class="modal-overlay" id="courseModal"><div class="modal"><h3>كورس</h3><div class="form-group"><input id="courseName" placeholder="اسم الكورس"></div><div class="form-group"><select id="courseGradeSel"></select></div><div class="form-group"><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-group"><button class="btn btn-sm" onclick="uploadCourseBanner()">رفع بانر</button><input id="courseBanner" readonly></div><div class="flex-row"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
-<div class="modal-overlay" id="lessonModal"><div class="modal"><h3>محاضرة</h3><div class="form-group"><input id="lessonTitle" placeholder="العنوان"></div><div class="form-group"><select id="lessonCourseSel"></select></div><div class="form-group"><button class="btn btn-sm" onclick="uploadVideo()">فيديو</button><input id="lessonVideo" readonly></div><div class="form-group"><button class="btn btn-sm" onclick="uploadPdf()">PDF</button><input id="lessonPdf" readonly></div><div class="flex-row"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
-<div class="modal-overlay" id="assignmentModal"><div class="modal" style="max-width:700px;"><h3>واجب</h3><div class="form-group"><textarea id="assignmentDesc" placeholder="وصف الواجب"></textarea></div><div class="form-group"><select id="assignmentLessonSel"></select></div><div id="questionsContainer"></div><button class="btn btn-sm" onclick="addQuestion()">➕ سؤال</button><div class="flex-row" style="margin-top:12px;"><button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button></div></div></div>
-<div class="modal-overlay" id="examModal"><div class="modal"><h3>امتحان</h3><div class="form-group"><input id="examName" placeholder="اسم الامتحان"></div><div class="form-group"><input type="number" id="examTime" placeholder="الزمن بالدقائق"></div><div class="flex-row"><button class="btn" onclick="closeModal('examModal')">إلغاء</button><button class="btn btn-primary" onclick="saveExam()">حفظ</button></div></div></div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>صورة</label><button class="btn btn-sm" onclick="uploadGradeImage()">رفع</button><input id="gradeImg" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-group"><label>Banner</label><button class="btn btn-sm" onclick="uploadCourseBanner()">رفع</button><input id="courseBanner" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>فيديو</label><button class="btn btn-sm" onclick="uploadLessonVideo()">رفع</button><input id="lessonVideo" readonly></div><div class="form-group"><label>PDF</label><button class="btn btn-sm" onclick="uploadLessonPdf()">رفع</button><input id="lessonPdf" readonly></div><div class="form-group"><label>بث مباشر</label><select id="lessonLive"><option value="false">لا</option><option value="true">نعم</option></select></div><div class="form-actions"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="examModal"><div class="modal"><h3>امتحان</h3><div class="form-group"><label>الاسم</label><input id="examName"></div><div class="form-group"><label>الزمن (دقيقة)</label><input type="number" id="examTime"></div><div class="form-actions"><button class="btn" onclick="closeModal('examModal')">إلغاء</button><button class="btn btn-primary" onclick="saveExam()">حفظ</button></div></div></div>
+    <!-- Assignment Modal (simplified) -->
+    <div class="modal-overlay" id="assignmentModal"><div class="modal" style="max-width:800px;"><h3>إنشاء واجب</h3><div class="form-group"><label>الوصف</label><textarea id="assignmentDesc"></textarea></div><div class="form-group"><label>المحاضرة</label><select id="assignmentLesson"></select></div><div id="questionsContainer"></div><button class="btn btn-sm" onclick="addQuestion()">➕ إضافة سؤال</button><div class="form-actions"><button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button></div></div></div>
 
-<script>
-(function() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDT0xGqGHzyyeB4qcz5AGMKxESCGZNNEWE",
-    authDomain: "abdullah-khalil.firebaseapp.com",
-    projectId: "abdullah-khalil",
-    storageBucket: "abdullah-khalil.firebasestorage.app",
-    messagingSenderId: "530661483867",
-    appId: "1:530661483867:web:e2f165e9f808bcfcb8267e"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const cloudName = "ml_default", uploadPreset = "ml_default", cloudApiKey = "864215656447737";
-  const oneSignalAppId = "os_v2_app_mk6n33aj55ditcmb3n5fpo66rsihml7iabcekj5ofx5anzjsjoli2ulxvakacn4srunaazbtwcvmdzed45erspjkmljiagwpfhyyl5a";
-  if(oneSignalAppId) { window.OneSignal = window.OneSignal || []; OneSignal.push(function(){ OneSignal.init({appId:oneSignalAppId}); }); }
+    <script>
+        (function() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDT0xGqGHzyyeB4qcz5AGMKxESCGZNNEWE",
+                authDomain: "abdullah-khalil.firebaseapp.com",
+                projectId: "abdullah-khalil",
+                storageBucket: "abdullah-khalil.firebasestorage.app",
+                messagingSenderId: "530661483867",
+                appId: "1:530661483867:web:e2f165e9f808bcfcb8267e"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
 
-  function uploadCloud(resourceType, onSuccess) {
-    window.cloudinary.openUploadWidget({
-      cloudName, uploadPreset, apiKey: cloudApiKey, sources:['local','url'], multiple:false,
-      resourceType, clientAllowedFormats: resourceType==='video'?['mp4','webm']:resourceType==='raw'?['pdf']:['png','jpg','jpeg'],
-      maxFileSize:500000000, language:'ar'
-    }, (err, res) => { if(res?.event==='success') onSuccess(res.info.secure_url); });
-  }
-  window.uploadLogo = ()=> uploadCloud('image', url=>{ document.getElementById('logoPreview').src=url; document.getElementById('sidebarLogo').innerHTML=`<img src="${url}" style="width:60px;height:60px;border-radius:14px;">`; db.collection('settings').doc('platform').set({logo:url},{merge:true}); });
-  window.uploadGradeImg = ()=> uploadCloud('image', url=> document.getElementById('gradeImg').value=url);
-  window.uploadCourseBanner = ()=> uploadCloud('image', url=> document.getElementById('courseBanner').value=url);
-  window.uploadVideo = ()=> uploadCloud('video', url=> document.getElementById('lessonVideo').value=url);
-  window.uploadPdf = ()=> uploadCloud('raw', url=> document.getElementById('lessonPdf').value=url);
+            const CLOUDINARY_CLOUD = "ml_default";
+            const CLOUDINARY_PRESET = "ml_default";
+            const CLOUDINARY_KEY = "864215656447737";
+            const ONESIGNAL_APP_ID = "os_v2_app_mk6n33aj55ditcmb3n5fpo66rsihml7iabcekj5ofx5anzjsjoli2ulxvakacn4srunaazbtwcvmdzed45erspjkmljiagwpfhyyl5a";
+            if (ONESIGNAL_APP_ID) {
+                window.OneSignal = window.OneSignal || [];
+                OneSignal.push(function() { OneSignal.init({ appId: ONESIGNAL_APP_ID }); });
+            }
 
-  // Questions array for assignment
-  let currentQuestions = [];
-  window.addQuestion = ()=>{
-    currentQuestions.push({id:Date.now(), image:'', text:'', options:['','','',''], correct:0});
-    renderAssignmentQuestions();
-  };
-  window.removeQuestion = (id)=>{ currentQuestions = currentQuestions.filter(q=>q.id!==id); renderAssignmentQuestions(); };
-  window.setCorrect = (qId, idx)=>{ const q=currentQuestions.find(q=>q.id===qId); if(q) q.correct=idx; renderAssignmentQuestions(); };
-  window.uploadQImage = (qId)=> uploadCloud('image', url=>{ const q=currentQuestions.find(q=>q.id===qId); if(q) q.image=url; renderAssignmentQuestions(); });
-  function renderAssignmentQuestions() {
-    document.getElementById('questionsContainer').innerHTML = currentQuestions.map((q,i)=>`
-      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:14px; padding:12px; margin-bottom:10px;">
-        <div style="display:flex; justify-content:space-between;"><strong>سؤال ${i+1}</strong><button class="btn btn-sm btn-danger" onclick="removeQuestion(${q.id})">حذف</button></div>
-        <input id="qText_${q.id}" value="${q.text}" oninput="currentQuestions.find(q=>q.id===${q.id}).text=this.value" placeholder="نص السؤال" style="width:100%; margin:6px 0;">
-        <button class="btn btn-sm" onclick="uploadQImage(${q.id})">صورة</button><input id="qImg_${q.id}" value="${q.image}" readonly>
-        ${['أ','ب','ج','د'].map((o,idx)=>`<div style="display:flex; gap:6px; margin-top:4px;"><span>${o}</span><input id="opt_${q.id}_${idx}" value="${q.options[idx]}" oninput="currentQuestions.find(q=>q.id===${q.id}).options[${idx}]=this.value" style="flex:1;"><input type="radio" name="corr_${q.id}" ${q.correct===idx?'checked':''} onclick="setCorrect(${q.id},${idx})"></div>`).join('')}
-        <div style="color:#22d3bb; font-size:0.75rem;">الإجابة: ${['أ','ب','ج','د'][q.correct]}</div>
-      </div>`).join('');
-  }
+            function uploadToCloudinary(resourceType, onSuccess) {
+                window.cloudinary.openUploadWidget({
+                    cloudName: CLOUDINARY_CLOUD,
+                    uploadPreset: CLOUDINARY_PRESET,
+                    apiKey: CLOUDINARY_KEY,
+                    sources: ['local', 'url', 'camera'],
+                    multiple: false,
+                    resourceType: resourceType,
+                    clientAllowedFormats: resourceType === 'video' ? ['mp4', 'webm'] : resourceType === 'raw' ? ['pdf'] : [
+                        'png', 'jpg', 'jpeg'
+                    ],
+                    maxFileSize: 500000000,
+                    language: 'ar'
+                }, (error, result) => {
+                    if (!error && result?.event === 'success') onSuccess(result.info.secure_url);
+                });
+            }
 
-  // Helper to get collection
-  async function getCol(col) { const snap = await db.collection(col).orderBy('createdAt','desc').get(); return snap.docs.map(d=>({id:d.id,...d.data()})); }
+            function uploadLogo() { uploadToCloudinary('image', url => { document.getElementById('logoPreview').src =
+                        url;
+                    db.collection('settings').doc('platform').set({ logo: url }, { merge: true }); }); }
 
-  // Render functions
-  async function renderDashboard() {
-    const [students,courses,lessons,assignments,exams,questions] = await Promise.all([
-      db.collection('students').get().then(s=>s.size), db.collection('courses').get().then(s=>s.size),
-      db.collection('lessons').get().then(s=>s.size), db.collection('assignments').get().then(s=>s.size),
-      db.collection('exams').get().then(s=>s.size), db.collection('questions').get().then(s=>s.size)
-    ]);
-    document.getElementById('dashStats').innerHTML = `
-      <div class="stat-card"><div class="value">${students}</div><div>طالب</div></div>
-      <div class="stat-card"><div class="value">${courses}</div><div>كورس</div></div>
-      <div class="stat-card"><div class="value">${lessons}</div><div>محاضرة</div></div>
-      <div class="stat-card"><div class="value">${assignments}</div><div>واجب</div></div>
-      <div class="stat-card"><div class="value">${exams}</div><div>امتحان</div></div>
-      <div class="stat-card"><div class="value">${questions}</div><div>سؤال</div></div>`;
-  }
-  async function renderStudents() {
-    const data = await getCol('students');
-    document.getElementById('studentTable').innerHTML = data.map(s=>`<tr><td>${s.name||''}</td><td>${s.grade||''}</td><td>${s.phone||''}</td><td><span class="badge ${s.status==='مفعل'?'badge-success':'badge-warning'}">${s.status||'قيد المراجعة'}</span></td><td><button class="btn btn-sm" onclick="changeStatus('students','${s.id}','مفعل')">تفعيل</button></td></tr>`).join('');
-  }
-  async function renderGrades() {
-    const data = await getCol('grades');
-    document.getElementById('gradeTable').innerHTML = data.map(g=>`<tr><td>${g.name}</td><td>${g.img?`<img src="${g.img}" style="width:30px;height:30px;border-radius:8px;">`:''}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDoc('grades','${g.id}')">حذف</button></td></tr>`).join('');
-    document.getElementById('courseGradeSel').innerHTML = data.map(g=>`<option>${g.name}</option>`).join('');
-  }
-  async function renderCourses() {
-    const data = await getCol('courses');
-    document.getElementById('courseTable').innerHTML = data.map(c=>`<tr><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDoc('courses','${c.id}')">حذف</button></td></tr>`).join('');
-    document.getElementById('lessonCourseSel').innerHTML = data.map(c=>`<option>${c.name}</option>`).join('');
-  }
-  async function renderLessons() {
-    const data = await getCol('lessons');
-    document.getElementById('lessonTable').innerHTML = data.map(l=>`<tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.pdf?'✅':'❌'}</td><td>${l.live?'مباشر':'—'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDoc('lessons','${l.id}')">حذف</button></td></tr>`).join('');
-    document.getElementById('assignmentLessonSel').innerHTML = data.map(l=>`<option>${l.title}</option>`).join('');
-  }
-  async function renderAssignments() {
-    const data = await getCol('assignments');
-    document.getElementById('assignmentTable').innerHTML = data.map(a=>`<tr><td>${a.desc||''}</td><td>${a.lesson||''}</td><td>${a.questions?.length||0}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDoc('assignments','${a.id}')">حذف</button></td></tr>`).join('');
-  }
-  async function renderExams() {
-    const data = await getCol('exams');
-    document.getElementById('examTable').innerHTML = data.map(e=>`<tr><td>${e.name}</td><td>${e.time} دقيقة</td><td><button class="btn btn-sm btn-danger" onclick="deleteDoc('exams','${e.id}')">حذف</button></td></tr>`).join('');
-  }
-  async function renderQuestions() {
-    const data = await getCol('questions');
-    document.getElementById('questionTable').innerHTML = data.map(q=>`<tr><td>${q.student||''}</td><td>${q.text}</td><td>${q.status||'مفتوح'}</td><td><button class="btn btn-sm" onclick="replyQuestion('${q.id}')">رد</button></td></tr>`).join('');
-  }
+            function uploadGradeImage() { uploadToCloudinary('image', url => { document.getElementById('gradeImg').value =
+                        url; }); }
 
-  window.changeStatus = async (col,id,status)=>{ await db.collection(col).doc(id).update({status}); refreshCurrentTab(); };
-  window.deleteDoc = async (col,id)=>{ if(confirm('حذف؟')){ await db.collection(col).doc(id).delete(); refreshCurrentTab(); } };
-  window.replyQuestion = async (id)=>{ const reply=prompt('الرد:'); if(reply){ await db.collection('questions').doc(id).update({reply,status:'تم الرد'}); renderQuestions(); } };
+            function uploadCourseBanner() { uploadToCloudinary('image', url => { document.getElementById('courseBanner')
+                    .value = url; }); }
 
-  // Save functions
-  window.saveGrade = async ()=>{
-    const name=document.getElementById('gradeName').value, img=document.getElementById('gradeImg').value;
-    if(!name) return;
-    await db.collection('grades').add({name,img,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('gradeModal'); renderGrades();
-  };
-  window.saveCourse = async ()=>{
-    const name=document.getElementById('courseName').value, grade=document.getElementById('courseGradeSel').value, type=document.getElementById('courseType').value, banner=document.getElementById('courseBanner').value;
-    if(!name) return;
-    await db.collection('courses').add({name,grade,type,banner,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('courseModal'); renderCourses();
-  };
-  window.saveLesson = async ()=>{
-    const title=document.getElementById('lessonTitle').value, course=document.getElementById('lessonCourseSel').value, video=document.getElementById('lessonVideo').value, pdf=document.getElementById('lessonPdf').value;
-    if(!title) return;
-    await db.collection('lessons').add({title,course,video,pdf,live:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('lessonModal'); renderLessons();
-  };
-  window.saveAssignment = async ()=>{
-    const desc=document.getElementById('assignmentDesc').value, lesson=document.getElementById('assignmentLessonSel').value;
-    currentQuestions.forEach(q=>{ q.text=document.getElementById('qText_'+q.id)?.value||q.text; q.image=document.getElementById('qImg_'+q.id)?.value||q.image; });
-    await db.collection('assignments').add({desc,lesson,questions:currentQuestions,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('assignmentModal'); currentQuestions=[]; renderAssignments();
-  };
-  window.saveExam = async ()=>{
-    const name=document.getElementById('examName').value, time=document.getElementById('examTime').value;
-    await db.collection('exams').add({name,time,questions:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('examModal'); renderExams();
-  };
-  window.saveSettings = async ()=>{
-    await db.collection('settings').doc('platform').set({
-      platformName: document.getElementById('setName').value,
-      slogan: document.getElementById('setSlogan').value,
-      primaryColor: document.getElementById('setColor').value,
-      logo: document.getElementById('logoPreview').src
-    },{merge:true});
-    showToast('تم الحفظ');
-  };
+            function uploadLessonVideo() { uploadToCloudinary('video', url => { document.getElementById('lessonVideo')
+                    .value = url; }); }
 
-  // UI helpers
-  function openModal(id) { document.getElementById(id).classList.add('active'); }
-  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-  window.openModal = openModal; window.closeModal = closeModal;
-  function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
-  function customNotification() { const msg=prompt('نص الإشعار:'); if(msg && window.OneSignal) OneSignal.push(()=>OneSignal.sendSelfNotification("تنبيه",msg)); }
+            function uploadLessonPdf() { uploadToCloudinary('raw', url => { document.getElementById('lessonPdf').value =
+                        url; }); }
+            window.uploadLogo = uploadLogo;
+            window.uploadGradeImage = uploadGradeImage;
+            window.uploadCourseBanner = uploadCourseBanner;
+            window.uploadLessonVideo = uploadLessonVideo;
+            window.uploadLessonPdf = uploadLessonPdf;
 
-  let currentTab = 'dashboard';
-  async function refreshCurrentTab() {
-    const map = { dashboard:renderDashboard, students:renderStudents, grades:renderGrades, courses:renderCourses, lessons:renderLessons, assignments:renderAssignments, exams:renderExams, questions:renderQuestions, settings:async()=>{
-      const doc=await db.collection('settings').doc('platform').get(); if(doc.exists){ const d=doc.data(); document.getElementById('setName').value=d.platformName||''; document.getElementById('setSlogan').value=d.slogan||''; document.getElementById('setColor').value=d.primaryColor||'#7c5ce7'; document.getElementById('logoPreview').src=d.logo||''; }
-    }};
-    if(map[currentTab]) await map[currentTab]();
-  }
+            // Global state
+            let currentQuestions = [];
 
-  document.querySelectorAll('.sidebar nav a').forEach(a=>{
-    a.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      document.querySelectorAll('.sidebar nav a').forEach(x=>x.classList.remove('active'));
-      a.classList.add('active');
-      currentTab = a.dataset.tab;
-      document.getElementById('tabTitle').textContent = a.textContent.trim();
-      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-      document.getElementById('tab-'+currentTab).classList.add('active');
-      await refreshCurrentTab();
-    });
-  });
+            function openAssignmentModal() {
+                currentQuestions = [];
+                document.getElementById('assignmentDesc').value = '';
+                document.getElementById('questionsContainer').innerHTML = '';
+                db.collection('lessons').get().then(snap => {
+                    const sel = document.getElementById('assignmentLesson');
+                    sel.innerHTML = '<option value="">اختر محاضرة</option>';
+                    snap.forEach(doc => sel.innerHTML +=
+                        `<option value="${doc.id}">${doc.data().title||''}</option>`);
+                });
+                document.getElementById('assignmentModal').classList.add('active');
+            }
 
-  document.getElementById('menuToggle').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+            function addQuestion() {
+                const qId = Date.now();
+                currentQuestions.push({ id: qId, image: '', text: '', options: ['', '', '', ''], correct: 0 });
+                renderAssignmentQuestions();
+            }
 
-  // Initial load
-  renderDashboard();
-})();
-</script>
+            function renderAssignmentQuestions() {
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = currentQuestions.map((q, i) => `
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:16px;padding:12px;margin-bottom:8px;">
+                        <strong>سؤال ${i+1}</strong>
+                        <input value="${q.text}" oninput="updateQText(${q.id}, this.value)" placeholder="نص السؤال" style="width:100%;margin:8px 0;">
+                        <div style="display:flex;gap:8px;">
+                            ${q.options.map((opt, idx) => `<input value="${opt}" oninput="updateQOption(${q.id},${idx},this.value)" placeholder="${['أ','ب','ج','د'][idx]}">`).join('')}
+                            <select onchange="setCorrect(${q.id}, this.value)">
+                                <option value="">الإجابة</option>
+                                ${['أ','ب','ج','د'].map((o,idx) => `<option ${q.correct==idx?'selected':''} value="${idx}">${o}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            window.updateQText = (id, val) => { const q = currentQuestions.find(q => q.id === id); if (q) q.text = val; };
+            window.updateQOption = (id, idx, val) => { const q = currentQuestions.find(q => q.id === id); if (q) q.options[
+                    idx] = val; };
+            window.setCorrect = (id, val) => { const q = currentQuestions.find(q => q.id === id); if (q) q.correct =
+                parseInt(val); };
+            window.addQuestion = addQuestion;
+            window.openAssignmentModal = openAssignmentModal;
+
+            async function saveAssignment() {
+                const desc = document.getElementById('assignmentDesc').value;
+                const lessonId = document.getElementById('assignmentLesson').value;
+                if (!desc || currentQuestions.length === 0) return alert('أضف وصفاً وسؤالاً');
+                await db.collection('assignments').add({
+                    desc,
+                    lessonId,
+                    questions: currentQuestions,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeModal('assignmentModal');
+                renderAssignments();
+            }
+            window.saveAssignment = saveAssignment;
+
+            function openModal(id) { document.getElementById(id).classList.add('active'); }
+            function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+
+            function showToast(msg) {
+                const t = document.createElement('div');
+                t.className = 'notification-toast';
+                t.textContent = msg;
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 3000);
+            }
+
+            function customNotification() {
+                const msg = prompt('نص الإشعار:');
+                if (msg && window.OneSignal) {
+                    OneSignal.push(function() { OneSignal.sendSelfNotification("📢 منصة عبدالله خليل", msg); });
+                    showToast('✅ تم الإرسال');
+                }
+            }
+            window.customNotification = customNotification;
+
+            // Render functions
+            async function renderDashboard() {
+                const [s, c, l, e, a, q] = await Promise.all([
+                    db.collection('students').get().then(s => s.size),
+                    db.collection('courses').get().then(s => s.size),
+                    db.collection('lessons').get().then(s => s.size),
+                    db.collection('exams').get().then(s => s.size),
+                    db.collection('assignments').get().then(s => s.size),
+                    db.collection('questions').get().then(s => s.size)
+                ]);
+                document.getElementById('dashStats').innerHTML = [
+                    { icon: '👥', val: s, label: 'طالب' },
+                    { icon: '📚', val: c, label: 'كورس' },
+                    { icon: '🎬', val: l, label: 'محاضرة' },
+                    { icon: '📝', val: e, label: 'امتحان' },
+                    { icon: '📋', val: a, label: 'واجب' },
+                    { icon: '❓', val: q, label: 'سؤال' }
+                ].map(d =>
+                    `<div class="stat-card"><div style="font-size:2rem;">${d.icon}</div><div style="font-size:2.2rem;font-weight:800;">${d.val}</div><div>${d.label}</div></div>`
+                ).join('');
+            }
+
+            async function renderStudents() {
+                const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('studentTable').innerHTML = data.map(s => `
+                    <tr><td>${s.name||''}</td><td>${s.grade||''}</td><td>${s.phone||''}</td>
+                    <td><span class="badge ${s.status==='مفعل'?'badge-success':s.status==='محظور'?'badge-danger':'badge-warning'}">${s.status||'قيد المراجعة'}</span></td>
+                    <td><button class="btn btn-sm" onclick="updateDoc('students','${s.id}',{status:'مفعل'})">تفعيل</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('students','${s.id}')">حذف</button></td></tr>
+                `).join('');
+            }
+
+            async function renderGrades() {
+                const snap = await db.collection('grades').orderBy('order').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('gradeTable').innerHTML = data.map(g => `
+                    <tr><td>${g.img?`<img src="${g.img}" width="40">`:''}</td><td>${g.name}</td><td>${g.courses||0}</td><td>${g.order||0}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteDoc('grades','${g.id}')">حذف</button></td></tr>
+                `).join('');
+                const sel = document.getElementById('courseGrade');
+                sel.innerHTML = data.map(g => `<option>${g.name}</option>`).join('');
+            }
+
+            async function renderCourses() {
+                const snap = await db.collection('courses').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('courseTable').innerHTML = data.map(c => `
+                    <tr><td>${c.banner?`<img src="${c.banner}" width="40">`:''}</td><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td>${c.status||'ظاهر'}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteDoc('courses','${c.id}')">حذف</button></td></tr>
+                `).join('');
+                const sel = document.getElementById('lessonCourse');
+                sel.innerHTML = data.map(c => `<option>${c.name}</option>`).join('');
+            }
+
+            async function renderLessons() {
+                const snap = await db.collection('lessons').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('lessonTable').innerHTML = data.map(l => `
+                    <tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.pdf?'✅':'❌'}</td><td>${l.live?'نعم':'لا'}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteDoc('lessons','${l.id}')">حذف</button></td></tr>
+                `).join('');
+            }
+
+            async function renderAssignments() {
+                const snap = await db.collection('assignments').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('assignmentTable').innerHTML = data.map(a => `
+                    <tr><td>${a.desc}</td><td>${a.lessonId}</td><td>${a.questions?.length||0}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteDoc('assignments','${a.id}')">حذف</button></td></tr>
+                `).join('');
+            }
+
+            async function renderExams() {
+                const snap = await db.collection('exams').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('examTable').innerHTML = data.map(e => `
+                    <tr><td>${e.name}</td><td>${e.time} دقيقة</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteDoc('exams','${e.id}')">حذف</button></td></tr>
+                `).join('');
+            }
+
+            async function renderQuestions() {
+                const snap = await db.collection('questions').orderBy('createdAt', 'desc').get();
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('questionTable').innerHTML = data.map(q => `
+                    <tr><td>${q.student}</td><td>${q.text}</td><td>${q.status||'مفتوح'}</td><td>${q.reply||''}</td>
+                    <td><button class="btn btn-sm" onclick="replyQuestion('${q.id}')">رد</button></td></tr>
+                `).join('');
+            }
+
+            window.updateDoc = async (col, id, data) => { await db.collection(col).doc(id).update(data);
+                refreshCurrentTab(); };
+            window.deleteDoc = async (col, id) => { if (confirm('حذف؟')) { await db.collection(col).doc(id).delete();
+                    refreshCurrentTab(); } };
+            window.replyQuestion = async (id) => { const reply = prompt('الرد:'); if (reply) { await db.collection(
+                        'questions').doc(id).update({ reply, status: 'تم الرد' });
+                    renderQuestions(); } };
+
+            async function saveGrade() {
+                const name = document.getElementById('gradeName').value;
+                const img = document.getElementById('gradeImg').value;
+                if (name) { await db.collection('grades').add({ name, img, courses: 0, order: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal('gradeModal');
+                    renderGrades(); }
+            }
+            async function saveCourse() {
+                const name = document.getElementById('courseName').value;
+                const grade = document.getElementById('courseGrade').value;
+                const type = document.getElementById('courseType').value;
+                const banner = document.getElementById('courseBanner').value;
+                if (name) { await db.collection('courses').add({ name, grade, type, banner, status: 'ظاهر',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal('courseModal');
+                    renderCourses(); }
+            }
+            async function saveLesson() {
+                const title = document.getElementById('lessonTitle').value;
+                const course = document.getElementById('lessonCourse').value;
+                const video = document.getElementById('lessonVideo').value;
+                const pdf = document.getElementById('lessonPdf').value;
+                const live = document.getElementById('lessonLive').value === 'true';
+                if (title) { await db.collection('lessons').add({ title, course, video, pdf, live,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal('lessonModal');
+                    renderLessons(); }
+            }
+            async function saveExam() {
+                const name = document.getElementById('examName').value;
+                const time = document.getElementById('examTime').value;
+                if (name) { await db.collection('exams').add({ name, time,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal('examModal');
+                    renderExams(); }
+            }
+            async function saveSettings() {
+                await db.collection('settings').doc('platform').set({
+                    platformName: document.getElementById('settingPlatformName').value,
+                    slogan: document.getElementById('settingSlogan').value,
+                    primaryColor: document.getElementById('settingPrimaryColor').value,
+                    logo: document.getElementById('logoPreview').src
+                }, { merge: true });
+                showToast('✅ تم الحفظ');
+            }
+            window.saveGrade = saveGrade;
+            window.saveCourse = saveCourse;
+            window.saveLesson = saveLesson;
+            window.saveExam = saveExam;
+            window.saveSettings = saveSettings;
+
+            let currentTab = 'dashboard';
+            async function refreshCurrentTab() {
+                const map = {
+                    dashboard: renderDashboard,
+                    students: renderStudents,
+                    grades: renderGrades,
+                    courses: renderCourses,
+                    lessons: renderLessons,
+                    assignments: renderAssignments,
+                    exams: renderExams,
+                    questions: renderQuestions,
+                    settings: () => {}
+                };
+                if (map[currentTab]) await map[currentTab]();
+            }
+
+            document.querySelectorAll('.sidebar nav a').forEach(tab => {
+                tab.addEventListener('click', async (e) => {
+                    document.querySelectorAll('.sidebar nav a').forEach(t => t.classList.remove(
+                    'active'));
+                    tab.classList.add('active');
+                    currentTab = tab.dataset.tab;
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById('tab-' + currentTab).classList.add('active');
+                    document.getElementById('tabTitle').textContent = tab.textContent.trim();
+                    await refreshCurrentTab();
+                });
+            });
+
+            document.getElementById('menuToggle').addEventListener('click', () => document.getElementById(
+                'sidebar').classList.toggle('open'));
+
+            // Initial load
+            renderDashboard();
+        })();
+    </script>
 </body>
 </html>
