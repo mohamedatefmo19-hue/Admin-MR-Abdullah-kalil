@@ -4,43 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | مستر عبدالله خليل</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js">
+    </script>
+    <!-- Cloudinary -->
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript">
+    </script>
+    <!-- OneSignal -->
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <style>
         :root {
-            --bg-primary: #07071a;
-            --bg-secondary: #0e0e24;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --glass-bg: rgba(255, 255, 255, 0.04);
+            --bg-primary: #050510;
+            --bg-secondary: #0a0a1e;
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --glass-bg: rgba(255, 255, 255, 0.035);
             --glass-border: rgba(255, 255, 255, 0.07);
-            --glass-hover: rgba(255, 255, 255, 0.07);
+            --glass-hover: rgba(255, 255, 255, 0.06);
             --text-primary: #f0f0f5;
             --text-secondary: #b0b0c8;
-            --text-muted: #70708a;
+            --text-muted: #6b6b8a;
             --accent-1: #4da8da;
             --accent-2: #7c5ce7;
             --accent-3: #22d3bb;
             --accent-4: #f472b6;
             --accent-5: #fbbf24;
             --accent-gradient: linear-gradient(135deg, #4da8da 0%, #7c5ce7 50%, #22d3bb 100%);
-            --shadow-glow: 0 0 40px rgba(124, 92, 231, 0.25);
-            --radius-sm: 10px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
+            --accent-gradient-2: linear-gradient(135deg, #7c5ce7 0%, #f472b6 50%, #fbbf24 100%);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+            --shadow-glow: 0 0 60px rgba(124, 92, 231, 0.25), 0 0 120px rgba(77, 168, 218, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --font-ar: 'Cairo', 'Tajawal', sans-serif;
             --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
         body {
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-family: var(--font-ar);
             background: var(--bg-primary);
             color: var(--text-primary);
             display: flex;
             min-height: 100vh;
             overflow-x: hidden;
-            transition: background 0.3s;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
         }
         /* Aurora Background */
         .aurora-bg {
@@ -55,170 +83,279 @@
         .aurora-bg .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.2;
-            animation: auroraFloat 18s infinite ease-in-out;
+            filter: blur(150px);
+            opacity: 0.18;
+            animation: auroraFloat 25s infinite ease-in-out;
         }
         .aurora-bg .orb:nth-child(1) {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, #4da8da 0%, transparent 70%);
-            top: -150px;
-            left: -100px;
+            width: 700px;
+            height: 700px;
+            background: #4da8da;
+            top: -250px;
+            left: -200px;
         }
         .aurora-bg .orb:nth-child(2) {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, #7c5ce7 0%, transparent 70%);
-            bottom: -100px;
-            right: -120px;
+            width: 600px;
+            height: 600px;
+            background: #7c5ce7;
+            bottom: -200px;
+            right: -200px;
+            animation-delay: -10s;
+        }
+        .aurora-bg .orb:nth-child(3) {
+            width: 500px;
+            height: 500px;
+            background: #22d3bb;
+            top: 50%;
+            left: 40%;
+            animation-delay: -18s;
         }
         @keyframes auroraFloat {
             0%,
             100% {
                 transform: translate(0, 0) scale(1);
             }
-            50% {
-                transform: translate(30px, -40px) scale(1.05);
+            25% {
+                transform: translate(80px, -60px) scale(1.15);
             }
+            50% {
+                transform: translate(-50px, 70px) scale(0.85);
+            }
+            75% {
+                transform: translate(-70px, -40px) scale(1.08);
+            }
+        }
+        /* Floating shapes */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .floating-shapes .shape {
+            position: absolute;
+            opacity: 0.04;
+            animation: floatShape 18s infinite ease-in-out;
+        }
+        .floating-shapes .hex {
+            width: 70px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        @keyframes floatShape {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-45px) rotate(8deg);
+            }
+            66% {
+                transform: translateY(25px) rotate(-5deg);
+            }
+        }
+        /* Mouse Glow */
+        .mouse-glow {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 92, 231, 0.1) 0%, transparent 60%);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         /* Sidebar */
         .sidebar {
-            width: 280px;
-            background: rgba(10, 10, 26, 0.8);
-            backdrop-filter: blur(30px);
+            width: 270px;
+            background: rgba(10, 10, 30, 0.75);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
             border-left: 1px solid var(--glass-border);
-            padding: 24px 16px;
+            padding: 28px 18px;
             display: flex;
             flex-direction: column;
             gap: 6px;
             flex-shrink: 0;
+            position: relative;
             z-index: 10;
-            transition: transform 0.3s;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
         }
-        .sidebar .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            text-decoration: none;
+        .sidebar .logo-area {
+            text-align: center;
+            margin-bottom: 28px;
         }
-        .sidebar .logo-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
+        .sidebar .logo-img {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            margin: 0 auto 8px;
             background: var(--accent-gradient);
-            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            box-shadow: 0 0 20px rgba(124, 92, 231, 0.5);
+            font-size: 1.8rem;
+            color: #fff;
+            box-shadow: var(--shadow-glow);
+            transition: var(--transition-smooth);
         }
         .sidebar .logo-text {
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 1rem;
             color: #fff;
-            font-size: 0.95rem;
-            line-height: 1.3;
         }
         .sidebar .logo-text small {
             display: block;
+            font-weight: 400;
             font-size: 0.7rem;
             color: var(--text-muted);
-            font-weight: 400;
         }
         .sidebar nav {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
             flex: 1;
         }
         .sidebar nav a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 14px;
+            padding: 11px 16px;
             border-radius: 30px;
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             transition: var(--transition-fast);
             cursor: pointer;
             position: relative;
+            overflow: hidden;
+        }
+        .sidebar nav a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 30px;
+            z-index: -1;
         }
         .sidebar nav a:hover,
         .sidebar nav a.active {
-            background: rgba(255, 255, 255, 0.05);
             color: #fff;
+            background: rgba(255, 255, 255, 0.05);
         }
         .sidebar nav a.active::before {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
+            opacity: 0.15;
+        }
+        .sidebar nav a svg {
+            width: 20px;
             height: 20px;
-            border-radius: 3px;
-            background: var(--accent-gradient);
+            flex-shrink: 0;
         }
         /* Main */
         .main {
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 5;
             overflow-y: auto;
             max-height: 100vh;
-            position: relative;
-            z-index: 1;
         }
         .top-bar {
-            padding: 16px 24px;
+            padding: 16px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(7, 7, 26, 0.7);
-            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 26, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
             position: sticky;
             top: 0;
-            z-index: 5;
+            z-index: 15;
+            gap: 16px;
         }
         .top-bar h2 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
         .btn {
-            padding: 8px 18px;
+            padding: 9px 20px;
             border-radius: 30px;
-            font-family: inherit;
+            font-family: var(--font-ar);
             font-weight: 600;
             font-size: 0.85rem;
             border: none;
             cursor: pointer;
-            transition: var(--transition-fast);
+            transition: var(--transition-smooth);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             background: transparent;
             color: var(--text-primary);
-            border: 1px solid var(--glass-border);
+            border: 1.5px solid var(--glass-border);
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
         .btn-primary {
             background: var(--accent-gradient);
             border: none;
             color: #fff;
-            box-shadow: 0 4px 15px rgba(124, 92, 231, 0.3);
+            box-shadow: 0 6px 24px rgba(124, 92, 231, 0.35);
         }
         .btn-primary:hover {
+            box-shadow: 0 10px 35px rgba(124, 92, 231, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 92, 231, 0.5);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.75rem;
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
         .content-area {
             padding: 24px;
@@ -226,7 +363,7 @@
         }
         .tab-panel {
             display: none;
-            animation: fadeSlideIn 0.4s ease;
+            animation: fadeSlideIn 0.35s ease;
         }
         .tab-panel.active {
             display: block;
@@ -234,73 +371,81 @@
         @keyframes fadeSlideIn {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(18px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+        /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
         .stat-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 22px 18px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             transition: var(--transition-smooth);
-            animation: cardPop 0.5s ease backwards;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
         }
         .stat-card:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.18);
             transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: var(--shadow-lg);
         }
-        @keyframes cardPop {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .chart-row {
+        .stat-card .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            font-size: 1.4rem;
         }
-        .chart-box {
-            flex: 1;
-            min-width: 300px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            backdrop-filter: blur(10px);
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        .stat-card .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        /* Tables */
         .table-wrapper {
+            overflow-x: auto;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
-            overflow-x: auto;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            margin-top: 12px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
+            min-width: 700px;
         }
         th,
         td {
-            padding: 12px 16px;
+            padding: 13px 16px;
             text-align: right;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             white-space: nowrap;
@@ -308,13 +453,22 @@
         th {
             color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr {
+            transition: background 0.2s;
+        }
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 600;
+            display: inline-block;
         }
         .badge-success {
             background: rgba(34, 211, 187, 0.2);
@@ -332,21 +486,23 @@
             background: rgba(77, 168, 218, 0.2);
             color: #4da8da;
         }
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 100;
             opacity: 0;
             visibility: hidden;
-            transition: 0.3s;
+            transition: 0.35s;
         }
         .modal-overlay.active {
             opacity: 1;
@@ -355,18 +511,20 @@
         .modal {
             background: var(--bg-secondary);
             border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-xl);
             padding: 28px;
-            width: 90%;
-            max-width: 600px;
+            width: 92%;
+            max-width: 550px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
-            animation: modalIn 0.3s ease;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: var(--shadow-lg);
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes modalIn {
+        @keyframes modalPop {
             from {
-                transform: scale(0.9);
+                transform: scale(0.92);
                 opacity: 0;
             }
             to {
@@ -374,36 +532,101 @@
                 opacity: 1;
             }
         }
+        .modal h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
         .form-group {
             margin-bottom: 14px;
         }
         .form-group label {
             display: block;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
             color: var(--text-secondary);
+            font-weight: 500;
         }
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px 14px;
+            padding: 11px 16px;
             border-radius: 30px;
-            border: 1px solid var(--glass-border);
+            border: 1.5px solid var(--glass-border);
             background: rgba(255, 255, 255, 0.04);
             color: #fff;
-            font-family: inherit;
+            font-family: var(--font-ar);
             font-size: 0.9rem;
             transition: 0.2s;
+            outline: none;
         }
         .form-group textarea {
             border-radius: 16px;
             resize: vertical;
+            min-height: 80px;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(124, 92, 231, 0.15);
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .flex-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: var(--accent-gradient);
+            transition: width 0.6s ease;
+        }
+        .notification-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+            animation: slideInToast 0.4s ease;
+            box-shadow: var(--shadow-md);
+        }
+        @keyframes slideInToast {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
-                right: -300px;
+                right: -290px;
                 top: 0;
                 bottom: 0;
                 z-index: 50;
@@ -411,8 +634,8 @@
             .sidebar.open {
                 right: 0;
             }
-            .menu-toggle {
-                display: block;
+            .main {
+                width: 100%;
             }
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -423,459 +646,538 @@
             background: none;
             border: none;
             color: #fff;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
         }
-        /* Ripple */
-        .btn-ripple {
-            position: relative;
-            overflow: hidden;
-        }
-        .ripple-effect {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0);
-            animation: ripple 0.6s ease-out;
-            pointer-events: none;
-        }
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
             }
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="aurora-bg">
-        <div class="orb"></div>
-        <div class="orb"></div>
+    <div class="aurora-bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+    <div class="floating-shapes">
+        <div class="shape hex" style="top:8%;left:5%;animation-delay:0s;"></div>
+        <div class="shape hex" style="top:55%;right:4%;animation-delay:-6s;width:55px;height:32px;"></div>
+        <div class="shape hex" style="bottom:20%;left:12%;animation-delay:-11s;width:45px;height:26px;"></div>
     </div>
+    <div class="mouse-glow" id="mouseGlow"></div>
+
     <aside class="sidebar" id="sidebar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon">ع</div>
-            <span class="logo-text">مستر عبدالله خليل<small>لوحة التحكم</small></span>
-        </a>
+        <div class="logo-area">
+            <div class="logo-img" id="sidebarLogoPreview">⚛️</div>
+            <div class="logo-text">لوحة التحكم<small>مستر عبدالله خليل</small></div>
+        </div>
         <nav>
-            <a class="active" data-tab="dashboard">📊 الرئيسية</a>
-            <a data-tab="students">👥 الطلاب</a>
-            <a data-tab="grades">📚 الصفوف</a>
-            <a data-tab="courses">📘 الكورسات</a>
-            <a data-tab="lessons">🎥 المحاضرات</a>
-            <a data-tab="assignments">📝 الواجبات</a>
-            <a data-tab="exams">📋 الامتحانات</a>
-            <a data-tab="questions">❓ الأسئلة</a>
-            <a data-tab="settings">⚙️ الإعدادات</a>
+            <a class="active" data-tab="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>الرئيسية</a>
+            <a data-tab="students"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>الطلاب</a>
+            <a data-tab="grades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>الصفوف</a>
+            <a data-tab="courses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/></svg>الكورسات</a>
+            <a data-tab="lessons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>المحاضرات</a>
+            <a data-tab="assignments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>الواجبات</a>
+            <a data-tab="exams"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>الامتحانات</a>
+            <a data-tab="questions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/></svg>الأسئلة</a>
+            <a data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>الإعدادات</a>
         </nav>
     </aside>
+
     <div class="main">
         <div class="top-bar">
             <button class="menu-toggle" id="menuToggle">☰</button>
-            <h2 id="tabTitle">لوحة التحكم</h2>
-            <div>
-                <span style="color:var(--text-secondary);">أهلاً بك، مستر عبدالله</span>
-                <a href="index.html" class="btn" style="margin-right:12px;">🌐 الموقع</a>
+            <h2 id="tabTitle">📊 لوحة التحكم الرئيسية</h2>
+            <div class="top-actions">
+                <span style="color:var(--text-muted);font-size:0.85rem;">أهلاً بك، مستر عبدالله</span>
+                <a href="index.html" class="btn btn-sm" target="_blank">عرض الموقع</a>
+                <button class="btn btn-primary btn-sm" onclick="sendPushNotification()">🔔 إرسال إشعار</button>
             </div>
         </div>
         <div class="content-area" id="contentArea">
-            <!-- Dashboard Panel -->
+            <!-- Dashboard -->
             <div class="tab-panel active" id="tab-dashboard">
                 <div class="stats-grid" id="dashStats"></div>
-                <div class="chart-row">
-                    <div class="chart-box"><h4>نشاط الطلاب</h4><canvas id="activityChart" height="200"></canvas></div>
-                    <div class="chart-box"><h4>توزيع الكورسات</h4><canvas id="coursesChart" height="200"></canvas></div>
-                </div>
+                <div class="flex-row"><h3>📋 آخر النشاطات</h3></div>
+                <div class="table-wrapper"><table><thead><tr><th>الحدث</th><th>التفاصيل</th><th>الوقت</th></tr></thead><tbody id="recentActivity"></tbody></table></div>
             </div>
-            <!-- Students Panel -->
+            <!-- Students -->
             <div class="tab-panel" id="tab-students">
-                <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-                    <input type="text" placeholder="🔍 بحث عن طالب..." id="studentSearch" style="width:200px;">
-                    <select id="studentFilter"><option value="">كل الحالات</option><option value="قيد المراجعة">قيد المراجعة</option><option value="مفعل">مفعل</option><option value="انتظار الدفع">انتظار الدفع</option><option value="محظور">محظور</option></select>
-                </div>
-                <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="studentTable"></tbody></table></div>
+                <div class="flex-row"><input type="text" placeholder="🔍 بحث عن طالب..." id="studentSearch" style="width:220px;"><select id="studentFilter"><option value="">كل الحالات</option><option>قيد المراجعة</option><option>مفعل</option><option>انتظار الدفع</option><option>محظور</option></select></div>
+                <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>ولي الأمر</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="studentTable"></tbody></table></div>
             </div>
-            <!-- Grades Panel -->
-            <div class="tab-panel" id="tab-grades">
-                <button class="btn btn-primary btn-ripple" onclick="openModal('gradeModal')">➕ إضافة صف</button>
-                <div class="table-wrapper" style="margin-top:16px;"><table><thead><tr><th>الاسم</th><th>الصورة</th><th>عدد الكورسات</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div>
-            </div>
-            <!-- Courses Panel -->
-            <div class="tab-panel" id="tab-courses">
-                <button class="btn btn-primary btn-ripple" onclick="openModal('courseModal')">➕ إضافة كورس</button>
-                <div class="table-wrapper" style="margin-top:16px;"><table><thead><tr><th>الاسم</th><th>الصف</th><th>النوع</th><th>الحالة</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div>
-            </div>
-            <!-- Lessons Panel -->
-            <div class="tab-panel" id="tab-lessons">
-                <button class="btn btn-primary btn-ripple" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button>
-                <div class="table-wrapper" style="margin-top:16px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>بث مباشر</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div>
-            </div>
-            <!-- Assignments Panel -->
-            <div class="tab-panel" id="tab-assignments">
-                <button class="btn btn-primary btn-ripple" onclick="openModal('assignmentModal')">➕ إنشاء واجب</button>
-                <div class="table-wrapper" style="margin-top:16px;"><table><thead><tr><th>السؤال</th><th>النوع</th><th>المحاضرة</th><th>الحلول</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div>
-            </div>
-            <!-- Exams Panel -->
-            <div class="tab-panel" id="tab-exams">
-                <button class="btn btn-primary btn-ripple" onclick="openModal('examModal')">➕ إنشاء امتحان</button>
-                <div class="table-wrapper" style="margin-top:16px;"><table><thead><tr><th>الاسم</th><th>الزمن</th><th>عدد الأسئلة</th><th>إظهار الحل</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div>
-            </div>
-            <!-- Questions Panel -->
-            <div class="tab-panel" id="tab-questions">
-                <div class="table-wrapper"><table><thead><tr><th>الطالب</th><th>السؤال</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="questionTable"></tbody></table></div>
-            </div>
-            <!-- Settings Panel -->
+            <!-- Grades -->
+            <div class="tab-panel" id="tab-grades"><button class="btn btn-primary" onclick="openModal('gradeModal')">➕ إضافة صف</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الصورة</th><th>اسم الصف</th><th>عدد الكورسات</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div></div>
+            <!-- Courses -->
+            <div class="tab-panel" id="tab-courses"><button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>Banner</th><th>الاسم</th><th>الصف</th><th>النوع</th><th>الحالة</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div></div>
+            <!-- Lessons -->
+            <div class="tab-panel" id="tab-lessons"><button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث مباشر</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div></div>
+            <!-- Assignments -->
+            <div class="tab-panel" id="tab-assignments"><button class="btn btn-primary" onclick="openModal('assignmentModal')">➕ إنشاء واجب</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>صورة السؤال</th><th>الوصف</th><th>المحاضرة</th><th>النوع</th><th>الإجابة الصحيحة</th><th>الحلول</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div></div>
+            <!-- Exams -->
+            <div class="tab-panel" id="tab-exams"><button class="btn btn-primary" onclick="openModal('examModal')">➕ إنشاء امتحان</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الامتحان</th><th>الزمن</th><th>عدد الأسئلة</th><th>إظهار الحل</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div></div>
+            <!-- Questions -->
+            <div class="tab-panel" id="tab-questions"><div class="table-wrapper"><table><thead><tr><th>الطالب</th><th>السؤال</th><th>الحالة</th><th>الرد</th><th>إجراءات</th></tr></thead><tbody id="questionTable"></tbody></table></div></div>
+            <!-- Settings -->
             <div class="tab-panel" id="tab-settings">
-                <div style="max-width:600px;display:grid;gap:16px;">
-                    <div class="form-group"><label>اسم المنصة</label><input id="setName" value="مستر عبدالله خليل"></div>
-                    <div class="form-group"><label>الشعار</label><input id="setSlogan" value="كيمياء ببساطة"></div>
-                    <div class="form-group"><label>اللون الأساسي</label><input type="color" id="setColor" value="#7c5ce7"></div>
-                    <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+                <div style="display:grid;gap:16px;max-width:650px;">
+                    <h3>⚙️ إعدادات المنصة</h3>
+                    <div class="form-group"><label>اسم المنصة</label><input id="settingPlatformName" value="مستر عبدالله خليل"></div>
+                    <div class="form-group"><label>الشعار النصي</label><input id="settingSlogan" value="كيمياء ببساطة"></div>
+                    <div class="form-group"><label>لوجو المنصة (ارفع صورة)</label>
+                        <button class="btn" onclick="uploadLogo()">📷 تغيير اللوجو</button>
+                        <img id="logoPreview" src="" alt="اللوجو الحالي" style="width:80px;height:80px;border-radius:16px;margin-top:8px;object-fit:cover;background:var(--glass-bg);">
+                    </div>
+                    <div class="form-group"><label>اللون الأساسي</label><input type="color" id="settingPrimaryColor" value="#7c5ce7"></div>
+                    <div class="form-group"><label>عداد الطلاب (للصفحة الرئيسية)</label><input type="number" id="settingStudentCount" value="12500"></div>
+                    <div class="form-group"><label>عداد الفيديوهات</label><input type="number" id="settingVideoCount" value="850"></div>
+                    <div class="form-group"><label>عداد الامتحانات</label><input type="number" id="settingExamCount" value="3200"></div>
+                    <div class="form-group"><label>نسبة النجاح %</label><input type="number" id="settingSuccessRate" value="97"></div>
+                    <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ جميع الإعدادات</button>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- Modals -->
-    <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف دراسي</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>رابط الصورة</label><input id="gradeImg"></div><button class="btn btn-primary" onclick="saveGrade()">حفظ</button> <button class="btn" onclick="closeModal('gradeModal')">إلغاء</button></div></div>
-    <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><button class="btn btn-primary" onclick="saveCourse()">حفظ</button> <button class="btn" onclick="closeModal('courseModal')">إلغاء</button></div></div>
-    <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>إضافة محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>رابط الفيديو</label><input id="lessonVideo"></div><div class="form-group"><label>رابط البث المباشر</label><input id="lessonLive"></div><button class="btn btn-primary" onclick="saveLesson()">حفظ</button> <button class="btn" onclick="closeModal('lessonModal')">إلغاء</button></div></div>
-    <div class="modal-overlay" id="assignmentModal"><div class="modal"><h3>إنشاء واجب</h3><div class="form-group"><label>نوع السؤال</label><select id="assignType" onchange="toggleAssignFields()"><option value="mcq">اختيار من متعدد</option><option value="tf">صح أو خطأ</option><option value="essay">سؤال مقالي (يرفع الطالب صورة)</option></select></div><div class="form-group"><label>صورة السؤال (اختياري)</label><input id="assignImg" placeholder="رابط الصورة"></div><div class="form-group"><label>نص السؤال</label><textarea id="assignText"></textarea></div><div id="mcqOptions"><div class="form-group"><label>الخيارات (مفصولة بفاصلة)</label><input id="assignOptions" placeholder="خيار1,خيار2,خيار3,خيار4"></div><div class="form-group"><label>الإجابة الصحيحة</label><input id="assignAnswer"></div></div><div id="tfOptions" style="display:none;"><div class="form-group"><label>الإجابة الصحيحة</label><select id="assignTF"><option value="صح">صح</option><option value="خطأ">خطأ</option></select></div></div><div class="form-group"><label>المحاضرة المرتبطة</label><select id="assignLesson"></select></div><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button> <button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button></div></div>
-    <div class="modal-overlay" id="examModal"><div class="modal"><h3>إنشاء امتحان</h3><div class="form-group"><label>اسم الامتحان</label><input id="examName"></div><div class="form-group"><label>الزمن (دقائق)</label><input type="number" id="examTime"></div><button class="btn btn-primary" onclick="saveExam()">حفظ وإضافة أسئلة</button> <button class="btn" onclick="closeModal('examModal')">إلغاء</button></div></div>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف دراسي</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>رابط الصورة</label><input id="gradeImg" placeholder="https://..."></div><div class="form-actions"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-actions"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>إضافة محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>رابط الفيديو (Cloudinary)</label><input id="lessonVideo"></div><div class="form-group"><label>رابط PDF</label><input id="lessonPdf"></div><div class="form-actions"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="assignmentModal"><div class="modal"><h3>إنشاء واجب</h3><div class="form-group"><label>صورة السؤال (ارفع)</label><button class="btn btn-sm" onclick="uploadAssignmentImage()">رفع صورة</button><input id="assignmentImage" placeholder="رابط الصورة"></div><div class="form-group"><label>الوصف</label><textarea id="assignmentDesc"></textarea></div><div class="form-group"><label>المحاضرة</label><select id="assignmentLesson"></select></div><div class="form-group"><label>نوع السؤال</label><select id="assignmentType" onchange="toggleAssignmentAnswer()"><option value="essay">مقالي (رفع صورة/PDF)</option><option value="mcq">اختيار من متعدد</option><option value="truefalse">صح أو خطأ</option></select></div><div class="form-group" id="assignmentAnswerGroup" style="display:none;"><label>الإجابة الصحيحة</label><input id="assignmentCorrect"></div><div class="form-actions"><button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="examModal"><div class="modal"><h3>إنشاء امتحان</h3><div class="form-group"><label>اسم الامتحان</label><input id="examName"></div><div class="form-group"><label>الزمن (دقيقة)</label><input type="number" id="examTime"></div><div class="form-actions"><button class="btn" onclick="closeModal('examModal')">إلغاء</button><button class="btn btn-primary" onclick="saveExam()">حفظ</button></div></div></div>
+
     <script>
         (function() {
-            // ========== Firebase Configuration ==========
-            const firebaseConfig = {
-                apiKey: "YOUR_API_KEY",
-                authDomain: "YOUR_PROJECT.firebaseapp.com",
-                databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-                projectId: "YOUR_PROJECT_ID",
-                storageBucket: "YOUR_PROJECT.appspot.com",
-                messagingSenderId: "YOUR_SENDER_ID",
-                appId: "YOUR_APP_ID"
+            // ==================== CONFIGURATION ====================
+            // 🔥 استبدل هذه القيم بمفاتيح مشروعك الحقيقية
+            const FIREBASE_CONFIG = {
+                apiKey: "AIzaSyYourApiKeyHere",
+                authDomain: "your-project.firebaseapp.com",
+                projectId: "your-project-id",
+                storageBucket: "your-project.appspot.com",
+                messagingSenderId: "000000000000",
+                appId: "1:000000000000:web:xxxxxxxxxxxxxxxxxxxx"
             };
+            const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // اسم الـ Cloudinary الخاص بك
+            const CLOUDINARY_UPLOAD_PRESET = "admin_uploads"; // upload preset غير موقع
+            const ONESIGNAL_APP_ID = "your-onesignal-app-id"; // App ID من OneSignal
+
             // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-
-            // OneSignal Init
-            window.OneSignal = window.OneSignal || [];
-            OneSignal.push(function() {
-                OneSignal.init({ appId: "YOUR_ONESIGNAL_APP_ID" });
-            });
-
-            // Global state
-            let currentTab = 'dashboard';
-            const panels = document.querySelectorAll('.tab-panel');
-            const tabs = document.querySelectorAll('.sidebar nav a');
-
-            // Helper functions
-            function showTab(tabId) {
-                panels.forEach(p => p.classList.remove('active'));
-                document.getElementById('tab-' + tabId).classList.add('active');
-                document.getElementById('tabTitle').textContent = document.querySelector(
-                    `[data-tab="${tabId}"]`).textContent.trim();
-                currentTab = tabId;
-                loadTabData(tabId);
+            let db, storage, auth;
+            try {
+                firebase.initializeApp(FIREBASE_CONFIG);
+                db = firebase.firestore();
+                storage = firebase.storage();
+                auth = firebase.auth();
+                console.log('✅ Firebase initialized');
+            } catch (e) {
+                console.warn('⚠️ Firebase config missing - using localStorage fallback');
+                // Fallback to localStorage for demo
+                initLocalFallback();
             }
 
-            function loadTabData(tab) {
-                switch (tab) {
-                    case 'dashboard':
-                        loadDashboard();
-                        break;
-                    case 'students':
-                        loadStudents();
-                        break;
-                    case 'grades':
-                        loadGrades();
-                        break;
-                    case 'courses':
-                        loadCourses();
-                        break;
-                    case 'lessons':
-                        loadLessons();
-                        break;
-                    case 'assignments':
-                        loadAssignments();
-                        break;
-                    case 'exams':
-                        loadExams();
-                        break;
-                    case 'questions':
-                        loadQuestions();
-                        break;
-                }
-            }
-
-            // Real-time listeners
-            function loadDashboard() {
-                db.ref('stats').on('value', snap => {
-                    const stats = snap.val() || { students: 0, courses: 0, lessons: 0, exams: 0,
-                        assignments: 0, questions: 0 };
-                    document.getElementById('dashStats').innerHTML = `
-                        <div class="stat-card"><div class="label">الطلاب</div><div class="value">${stats.students||0}</div></div>
-                        <div class="stat-card"><div class="label">الكورسات</div><div class="value">${stats.courses||0}</div></div>
-                        <div class="stat-card"><div class="label">المحاضرات</div><div class="value">${stats.lessons||0}</div></div>
-                        <div class="stat-card"><div class="label">الامتحانات</div><div class="value">${stats.exams||0}</div></div>
-                        <div class="stat-card"><div class="label">الواجبات</div><div class="value">${stats.assignments||0}</div></div>
-                        <div class="stat-card"><div class="label">الأسئلة</div><div class="value">${stats.questions||0}</div></div>
-                    `;
-                });
-                renderCharts();
-            }
-
-            function renderCharts() {
-                const ctx1 = document.getElementById('activityChart')?.getContext('2d');
-                const ctx2 = document.getElementById('coursesChart')?.getContext('2d');
-                if (ctx1) new Chart(ctx1, { type: 'line', data: { labels: ['يناير', 'فبراير', 'مارس', 'أبريل',
-                        'مايو'
-                    ], datasets: [{ label: 'طلاب نشطين', data: [120, 200, 180, 250, 300],
-                        borderColor: '#7c5ce7', tension: 0.4 }] } });
-                if (ctx2) new Chart(ctx2, { type: 'doughnut', data: { labels: ['أولى', 'ثانية', 'ثالثة'],
-                        datasets: [{ data: [30, 25, 45], backgroundColor: ['#4da8da', '#7c5ce7',
-                            '#22d3bb'
-                        ] }] } });
-            }
-
-            function loadStudents() {
-                db.ref('students').on('value', snap => {
-                    const students = snap.val() || {};
-                    const filter = document.getElementById('studentFilter')?.value || '';
-                    const search = document.getElementById('studentSearch')?.value?.toLowerCase() || '';
-                    let html = '';
-                    Object.entries(students).forEach(([id, s]) => {
-                        if ((filter && s.status !== filter) || (search && !s.name?.toLowerCase()
-                                .includes(search))) return;
-                        html += `<tr>
-                            <td>${s.name||''}</td><td>${s.grade||''}</td><td>${s.phone||''}</td>
-                            <td><span class="badge ${s.status==='مفعل'?'badge-success':s.status==='محظور'?'badge-danger':'badge-warning'}">${s.status||''}</span></td>
-                            <td>
-                                <button class="btn" onclick="changeStudentStatus('${id}','مفعل')">تفعيل</button>
-                                <button class="btn" onclick="changeStudentStatus('${id}','محظور')">حظر</button>
-                                <button class="btn" onclick="deleteStudent('${id}')">حذف</button>
-                            </td></tr>`;
-                    });
-                    document.getElementById('studentTable').innerHTML = html;
+            // Initialize OneSignal
+            if (ONESIGNAL_APP_ID !== 'your-onesignal-app-id') {
+                window.OneSignal = window.OneSignal || [];
+                OneSignal.push(function() {
+                    OneSignal.init({ appId: ONESIGNAL_APP_ID });
                 });
             }
 
-            window.changeStudentStatus = (id, status) => db.ref('students/' + id).update({ status });
-            window.deleteStudent = (id) => db.ref('students/' + id).remove();
-
-            function loadGrades() {
-                db.ref('grades').on('value', snap => {
-                    const grades = snap.val() || {};
-                    let html = '';
-                    Object.entries(grades).forEach(([id, g]) => {
-                        html += `<tr><td>${g.name}</td><td>${g.img||'📚'}</td><td>${g.courses||0}</td><td>${g.order||0}</td>
-                            <td><button class="btn" onclick="deleteGrade('${id}')">حذف</button></td></tr>`;
-                    });
-                    document.getElementById('gradeTable').innerHTML = html;
-                });
-            }
-            window.deleteGrade = (id) => db.ref('grades/' + id).remove();
-
-            function loadCourses() {
-                db.ref('courses').on('value', snap => {
-                    const courses = snap.val() || {};
-                    let html = '';
-                    Object.entries(courses).forEach(([id, c]) => {
-                        html +=
-                            `<tr><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td>${c.status||'ظاهر'}</td><td>${c.order||0}</td>
-                            <td><button class="btn" onclick="deleteCourse('${id}')">حذف</button></td></tr>`;
-                    });
-                    document.getElementById('courseTable').innerHTML = html;
-                });
-            }
-            window.deleteCourse = (id) => db.ref('courses/' + id).remove();
-
-            function loadLessons() {
-                db.ref('lessons').on('value', snap => {
-                    const lessons = snap.val() || {};
-                    let html = '';
-                    Object.entries(lessons).forEach(([id, l]) => {
-                        html +=
-                            `<tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.live?'✅':'❌'}</td><td>${l.order||0}</td>
-                            <td><button class="btn" onclick="deleteLesson('${id}')">حذف</button></td></tr>`;
-                    });
-                    document.getElementById('lessonTable').innerHTML = html;
-                });
-            }
-            window.deleteLesson = (id) => db.ref('lessons/' + id).remove();
-
-            function loadAssignments() {
-                db.ref('assignments').on('value', snap => {
-                    const assigns = snap.val() || {};
-                    let html = '';
-                    Object.entries(assigns).forEach(([id, a]) => {
-                        html +=
-                            `<tr><td>${a.text?.substring(0,30)}</td><td>${a.type}</td><td>${a.lesson}</td><td>${a.solutions||0}</td>
-                            <td><button class="btn" onclick="viewAssignmentSolutions('${id}')">عرض الحلول</button></td></tr>`;
-                    });
-                    document.getElementById('assignmentTable').innerHTML = html;
-                });
-            }
-
-            function loadExams() {
-                db.ref('exams').on('value', snap => {
-                    const exams = snap.val() || {};
-                    let html = '';
-                    Object.entries(exams).forEach(([id, e]) => {
-                        html +=
-                            `<tr><td>${e.name}</td><td>${e.time} دقيقة</td><td>${e.questions||0}</td><td>${e.showAnswers?'نعم':'لا'}</td>
-                            <td><button class="btn" onclick="deleteExam('${id}')">حذف</button></td></tr>`;
-                    });
-                    document.getElementById('examTable').innerHTML = html;
-                });
-            }
-            window.deleteExam = (id) => db.ref('exams/' + id).remove();
-
-            function loadQuestions() {
-                db.ref('questions').on('value', snap => {
-                    const questions = snap.val() || {};
-                    let html = '';
-                    Object.entries(questions).forEach(([id, q]) => {
-                        html +=
-                            `<tr><td>${q.student}</td><td>${q.text}</td><td>${q.status}</td><td><button class="btn" onclick="replyQuestion('${id}')">رد</button></td></tr>`;
-                    });
-                    document.getElementById('questionTable').innerHTML = html;
-                });
-            }
-
-            // Save functions
-            window.saveGrade = () => {
-                const name = document.getElementById('gradeName').value;
-                if (name) {
-                    db.ref('grades').push({ name, img: document.getElementById('gradeImg').value || '📚',
-                        courses: 0, order: 0 });
-                    closeModal('gradeModal');
-                }
+            // ==================== DATA LAYER ====================
+            const COLLECTIONS = {
+                students: 'students',
+                grades: 'grades',
+                courses: 'courses',
+                lessons: 'lessons',
+                assignments: 'assignments',
+                exams: 'exams',
+                questions: 'questions',
+                settings: 'settings',
+                activity: 'activity'
             };
-            window.saveCourse = () => {
-                const name = document.getElementById('courseName').value;
-                if (name) {
-                    db.ref('courses').push({ name, grade: document.getElementById('courseGrade').value, type: document
-                            .getElementById('courseType').value, status: 'ظاهر', order: 0 });
-                    closeModal('courseModal');
+
+            // Generic Firestore CRUD
+            async function getCollection(col) {
+                if (!db) return JSON.parse(localStorage.getItem(col) || '[]');
+                const snap = await db.collection(col).orderBy('createdAt', 'desc').get();
+                return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            }
+
+            async function addDocument(col, data) {
+                data.createdAt = firebase.firestore?.FieldValue?.serverTimestamp() || new Date().toISOString();
+                if (!db) {
+                    const arr = JSON.parse(localStorage.getItem(col) || '[]');
+                    data.id = Date.now().toString();
+                    arr.unshift(data);
+                    localStorage.setItem(col, JSON.stringify(arr));
+                    return data;
                 }
-            };
-            window.saveLesson = () => {
-                const title = document.getElementById('lessonTitle').value;
-                if (title) {
-                    db.ref('lessons').push({ title, course: document.getElementById('lessonCourse').value, video: document
-                            .getElementById('lessonVideo').value, live: document.getElementById('lessonLive')
-                            .value, order: 0 });
-                    closeModal('lessonModal');
+                const docRef = await db.collection(col).add(data);
+                return { id: docRef.id, ...data };
+            }
+
+            async function updateDocument(col, id, data) {
+                if (!db) {
+                    const arr = JSON.parse(localStorage.getItem(col) || '[]');
+                    const idx = arr.findIndex(i => i.id === id);
+                    if (idx > -1) { arr[idx] = { ...arr[idx], ...data };
+                        localStorage.setItem(col, JSON.stringify(arr)); }
+                    return;
                 }
-            };
-            window.saveAssignment = () => {
-                const type = document.getElementById('assignType').value;
-                const text = document.getElementById('assignText').value;
-                if (!text) return;
-                const assignment = {
-                    type,
-                    text,
-                    image: document.getElementById('assignImg').value,
-                    lesson: document.getElementById('assignLesson').value,
-                    solutions: 0
+                await db.collection(col).doc(id).update(data);
+            }
+
+            async function deleteDocument(col, id) {
+                if (!db) {
+                    const arr = JSON.parse(localStorage.getItem(col) || '[]').filter(i => i.id !== id);
+                    localStorage.setItem(col, JSON.stringify(arr));
+                    return;
+                }
+                await db.collection(col).doc(id).delete();
+            }
+
+            // ==================== CLOUDINARY UPLOAD ====================
+            function uploadToCloudinary(options = {}) {
+                const defaults = {
+                    cloudName: CLOUDINARY_CLOUD_NAME,
+                    uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+                    sources: ['local', 'url', 'camera'],
+                    multiple: false,
+                    maxFiles: 1,
+                    resourceType: 'auto',
+                    clientAllowedFormats: ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'mp4', 'webm'],
+                    maxFileSize: 500000000,
+                    language: 'ar',
+                    text: { 'ar': { 'or': 'أو', 'menu': { 'files': 'ملفاتي' } } }
                 };
-                if (type === 'mcq') {
-                    assignment.options = document.getElementById('assignOptions').value.split(',');
-                    assignment.answer = document.getElementById('assignAnswer').value;
-                } else if (type === 'tf') {
-                    assignment.answer = document.getElementById('assignTF').value;
+                const opts = { ...defaults, ...options };
+                window.cloudinary.openUploadWidget(opts, function(error, result) {
+                    if (error) { showToast('❌ فشل الرفع: ' + error.message);
+                        return; }
+                    if (result && result.event === 'success') {
+                        const url = result.info.secure_url;
+                        if (opts.onSuccess) opts.onSuccess(url);
+                        showToast('✅ تم الرفع بنجاح!');
+                    }
+                });
+            }
+
+            function uploadLogo() {
+                uploadToCloudinary({
+                    resourceType: 'image',
+                    onSuccess: (url) => {
+                        document.getElementById('logoPreview').src = url;
+                        document.getElementById('sidebarLogoPreview').innerHTML =
+                            `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
+                        localStorage.setItem('platformLogo', url);
+                        updateDocument(COLLECTIONS.settings, 'platform', { logo: url });
+                    }
+                });
+            }
+
+            function uploadAssignmentImage() {
+                uploadToCloudinary({
+                    resourceType: 'image',
+                    onSuccess: (url) => { document.getElementById('assignmentImage').value = url; }
+                });
+            }
+
+            // ==================== NOTIFICATIONS ====================
+            function sendPushNotification() {
+                if (typeof OneSignal !== 'undefined') {
+                    OneSignal.push(function() {
+                        OneSignal.sendSelfNotification(
+                            "📢 تنبيه من المنصة",
+                            "تم إرسال إشعار تجريبي من لوحة التحكم",
+                            "https://abdullahkhalil.com",
+                            "https://your-icon-url.png",
+                            { action: 'open' }
+                        );
+                    });
+                    showToast('✅ تم إرسال الإشعار');
+                } else {
+                    showToast('⚠️ OneSignal غير مهيأ - أضف App ID');
                 }
-                db.ref('assignments').push(assignment);
-                closeModal('assignmentModal');
+            }
+
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'notification-toast';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // ==================== UI RENDERING ====================
+            async function renderDashboard() {
+                const students = await getCollection(COLLECTIONS.students);
+                const courses = await getCollection(COLLECTIONS.courses);
+                const lessons = await getCollection(COLLECTIONS.lessons);
+                const exams = await getCollection(COLLECTIONS.exams);
+                const assignments = await getCollection(COLLECTIONS.assignments);
+                const questions = await getCollection(COLLECTIONS.questions);
+                document.getElementById('dashStats').innerHTML = `
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">👥</div><div class="stat-value">${students.length}</div><div class="stat-label">طالب</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(124,92,231,0.2);color:#7c5ce7;">📚</div><div class="stat-value">${courses.length}</div><div class="stat-label">كورس</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(34,211,187,0.2);color:#22d3bb;">🎬</div><div class="stat-value">${lessons.length}</div><div class="stat-label">محاضرة</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(244,114,182,0.2);color:#f472b6;">📝</div><div class="stat-value">${exams.length}</div><div class="stat-label">امتحان</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,0.2);color:#fbbf24;">📋</div><div class="stat-value">${assignments.length}</div><div class="stat-label">واجب</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">❓</div><div class="stat-value">${questions.length}</div><div class="stat-label">سؤال</div></div>
+                `;
+                const activity = await getCollection(COLLECTIONS.activity);
+                document.getElementById('recentActivity').innerHTML = activity.slice(0, 10).map(a => `
+                    <tr><td>${a.event}</td><td>${a.detail}</td><td>${new Date(a.createdAt).toLocaleString('ar-EG')}</td></tr>
+                `).join('') || '<tr><td colspan="3">لا يوجد نشاط بعد</td></tr>';
+            }
+
+            async function renderStudents() {
+                const students = await getCollection(COLLECTIONS.students);
+                document.getElementById('studentTable').innerHTML = students.map(s => `
+                    <tr>
+                        <td>${s.name || ''}</td><td>${s.grade || ''}</td><td>${s.phone || ''}</td><td>${s.parentPhone || ''}</td>
+                        <td><span class="badge ${s.status==='مفعل'?'badge-success':s.status==='محظور'?'badge-danger':'badge-warning'}">${s.status||'قيد المراجعة'}</span></td>
+                        <td>
+                            <button class="btn btn-sm" onclick="changeStudentStatus('${s.id}','مفعل')">تفعيل</button>
+                            <button class="btn btn-sm btn-danger" onclick="changeStudentStatus('${s.id}','محظور')">حظر</button>
+                            <button class="btn btn-sm" onclick="deleteDoc('students','${s.id}')">🗑️</button>
+                        </td>
+                    </tr>`).join('');
+            }
+
+            async function renderGrades() {
+                const grades = await getCollection(COLLECTIONS.grades);
+                document.getElementById('gradeTable').innerHTML = grades.map(g => `
+                    <tr><td><img src="${g.img}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'"> ${g.name}</td><td>${g.name}</td><td>${g.courses||0}</td><td>${g.order||0}</td>
+                    <td><button class="btn btn-sm" onclick="editGrade('${g.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('grades','${g.id}')">🗑️</button></td></tr>`).join('');
+                const sel = document.getElementById('courseGrade');
+                if (sel) sel.innerHTML = grades.map(g => `<option>${g.name}</option>`).join('');
+            }
+
+            async function renderCourses() {
+                const courses = await getCollection(COLLECTIONS.courses);
+                document.getElementById('courseTable').innerHTML = courses.map(c => `
+                    <tr><td>📚</td><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td>${c.status||'ظاهر'}</td><td>${c.order||0}</td>
+                    <td><button class="btn btn-sm" onclick="editCourse('${c.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('courses','${c.id}')">🗑️</button></td></tr>`).join('');
+                const sel = document.getElementById('lessonCourse');
+                if (sel) sel.innerHTML = courses.map(c => `<option>${c.name}</option>`).join('');
+            }
+
+            async function renderLessons() {
+                const lessons = await getCollection(COLLECTIONS.lessons);
+                document.getElementById('lessonTable').innerHTML = lessons.map(l => `
+                    <tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.pdf?'✅':'❌'}</td><td>${l.live?'نعم':'لا'}</td><td>${l.order||0}</td>
+                    <td><button class="btn btn-sm" onclick="editLesson('${l.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('lessons','${l.id}')">🗑️</button></td></tr>`).join('');
+                const sel = document.getElementById('assignmentLesson');
+                if (sel) sel.innerHTML = lessons.map(l => `<option>${l.title}</option>`).join('');
+            }
+
+            async function renderAssignments() {
+                const assignments = await getCollection(COLLECTIONS.assignments);
+                document.getElementById('assignmentTable').innerHTML = assignments.map(a => `
+                    <tr><td>${a.image?`<img src="${a.image}" style="width:40px;height:40px;border-radius:8px;">`:'📝'}</td><td>${a.desc||''}</td><td>${a.lesson}</td><td>${a.type||'مقالي'}</td><td>${a.correct||'-'}</td><td>${a.solutions||0}</td>
+                    <td><button class="btn btn-sm">عرض الحلول</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('assignments','${a.id}')">🗑️</button></td></tr>`).join('');
+            }
+
+            async function renderExams() {
+                const exams = await getCollection(COLLECTIONS.exams);
+                document.getElementById('examTable').innerHTML = exams.map(e => `
+                    <tr><td>${e.name}</td><td>${e.time} دقيقة</td><td>${e.questions||0}</td><td>${e.showAnswer?'نعم':'لا'}</td>
+                    <td><button class="btn btn-sm" onclick="editExam('${e.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('exams','${e.id}')">🗑️</button></td></tr>`).join('');
+            }
+
+            async function renderQuestions() {
+                const questions = await getCollection(COLLECTIONS.questions);
+                document.getElementById('questionTable').innerHTML = questions.map(q => `
+                    <tr><td>${q.student}</td><td>${q.text}</td><td>${q.status||'مفتوح'}</td><td>${q.reply||'—'}</td>
+                    <td><button class="btn btn-sm" onclick="replyQuestion('${q.id}')">رد</button> <button class="btn btn-sm btn-danger" onclick="deleteDoc('questions','${q.id}')">🗑️</button></td></tr>`).join('');
+            }
+
+            async function loadSettings() {
+                const settings = await getCollection(COLLECTIONS.settings);
+                const s = settings[0] || {};
+                document.getElementById('settingPlatformName').value = s.platformName || 'مستر عبدالله خليل';
+                document.getElementById('settingSlogan').value = s.slogan || 'كيمياء ببساطة';
+                document.getElementById('settingPrimaryColor').value = s.primaryColor || '#7c5ce7';
+                document.getElementById('settingStudentCount').value = s.studentCount || 12500;
+                document.getElementById('settingVideoCount').value = s.videoCount || 850;
+                document.getElementById('settingExamCount').value = s.examCount || 3200;
+                document.getElementById('settingSuccessRate').value = s.successRate || 97;
+                const logo = s.logo || localStorage.getItem('platformLogo') || '';
+                document.getElementById('logoPreview').src = logo;
+                if (logo) {
+                    document.getElementById('sidebarLogoPreview').innerHTML =
+                        `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
+                }
+            }
+
+            async function saveSettings() {
+                const data = {
+                    platformName: document.getElementById('settingPlatformName').value,
+                    slogan: document.getElementById('settingSlogan').value,
+                    primaryColor: document.getElementById('settingPrimaryColor').value,
+                    studentCount: parseInt(document.getElementById('settingStudentCount').value),
+                    videoCount: parseInt(document.getElementById('settingVideoCount').value),
+                    examCount: parseInt(document.getElementById('settingExamCount').value),
+                    successRate: parseInt(document.getElementById('settingSuccessRate').value),
+                    logo: document.getElementById('logoPreview').src
+                };
+                const existing = await getCollection(COLLECTIONS.settings);
+                if (existing.length > 0) {
+                    await updateDocument(COLLECTIONS.settings, existing[0].id, data);
+                } else {
+                    await addDocument(COLLECTIONS.settings, data);
+                }
+                await addDocument(COLLECTIONS.activity, { event: 'تحديث الإعدادات', detail: 'تم حفظ إعدادات المنصة' });
+                showToast('✅ تم حفظ الإعدادات بنجاح');
+            }
+
+            // CRUD operations
+            window.changeStudentStatus = async (id, status) => {
+                await updateDocument(COLLECTIONS.students, id, { status });
+                renderStudents();
+                showToast(`✅ تم تغيير الحالة إلى: ${status}`);
             };
-            window.saveExam = () => {
+            window.deleteDoc = async (col, id) => {
+                if (confirm('تأكيد الحذف؟')) { await deleteDocument(col, id);
+                    refreshCurrentTab();
+                    showToast('🗑️ تم الحذف'); }
+            };
+            window.replyQuestion = async (id) => {
+                const reply = prompt('أدخل الرد:');
+                if (reply) { await updateDocument(COLLECTIONS.questions, id, { reply, status: 'تم الرد' });
+                    renderQuestions();
+                    showToast('✅ تم الرد'); }
+            };
+
+            async function saveGrade() {
+                const name = document.getElementById('gradeName').value;
+                const img = document.getElementById('gradeImg').value;
+                if (name) { await addDocument(COLLECTIONS.grades, { name, img, courses: 0, order: 0 });
+                    closeModal('gradeModal');
+                    renderGrades();
+                    showToast('✅ تم إضافة الصف'); }
+            }
+            async function saveCourse() {
+                const name = document.getElementById('courseName').value;
+                const grade = document.getElementById('courseGrade').value;
+                const type = document.getElementById('courseType').value;
+                if (name) { await addDocument(COLLECTIONS.courses, { name, grade, type, status: 'ظاهر', order: 0 });
+                    closeModal('courseModal');
+                    renderCourses();
+                    showToast('✅ تم إضافة الكورس'); }
+            }
+            async function saveLesson() {
+                const title = document.getElementById('lessonTitle').value;
+                const course = document.getElementById('lessonCourse').value;
+                const video = document.getElementById('lessonVideo').value;
+                const pdf = document.getElementById('lessonPdf').value;
+                if (title) { await addDocument(COLLECTIONS.lessons, { title, course, video, pdf, live: false, order: 0 });
+                    closeModal('lessonModal');
+                    renderLessons();
+                    showToast('✅ تمت الإضافة'); }
+            }
+            async function saveAssignment() {
+                const image = document.getElementById('assignmentImage').value;
+                const desc = document.getElementById('assignmentDesc').value;
+                const lesson = document.getElementById('assignmentLesson').value;
+                const type = document.getElementById('assignmentType').value;
+                const correct = document.getElementById('assignmentCorrect')?.value || '';
+                await addDocument(COLLECTIONS.assignments, { image, desc, lesson, type, correct, solutions: 0 });
+                closeModal('assignmentModal');
+                renderAssignments();
+                showToast('✅ تم إنشاء الواجب');
+            }
+            async function saveExam() {
                 const name = document.getElementById('examName').value;
                 const time = document.getElementById('examTime').value;
-                if (name && time) {
-                    db.ref('exams').push({ name, time, questions: 0, showAnswers: false });
+                if (name) { await addDocument(COLLECTIONS.exams, { name, time, questions: 0, showAnswer: false });
                     closeModal('examModal');
+                    renderExams();
+                    showToast('✅ تم إنشاء الامتحان'); }
+            }
+
+            function toggleAssignmentAnswer() {
+                const type = document.getElementById('assignmentType').value;
+                document.getElementById('assignmentAnswerGroup').style.display = (type === 'mcq' || type ===
+                    'truefalse') ? 'block' : 'none';
+            }
+
+            // ==================== UI HELPERS ====================
+            function openModal(id) { document.getElementById(id).classList.add('active'); }
+
+            function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+
+            let currentTab = 'dashboard';
+            async function refreshCurrentTab() {
+                switch (currentTab) {
+                    case 'dashboard':
+                        renderDashboard();
+                        break;
+                    case 'students':
+                        renderStudents();
+                        break;
+                    case 'grades':
+                        renderGrades();
+                        break;
+                    case 'courses':
+                        renderCourses();
+                        break;
+                    case 'lessons':
+                        renderLessons();
+                        break;
+                    case 'assignments':
+                        renderAssignments();
+                        break;
+                    case 'exams':
+                        renderExams();
+                        break;
+                    case 'questions':
+                        renderQuestions();
+                        break;
+                    case 'settings':
+                        loadSettings();
+                        break;
                 }
-            };
-            window.saveSettings = () => {
-                db.ref('settings').set({
-                    name: document.getElementById('setName').value,
-                    slogan: document.getElementById('setSlogan').value,
-                    color: document.getElementById('setColor').value
-                });
-                alert('تم حفظ الإعدادات');
-            };
-
-            // Modal controls
-            window.openModal = (id) => {
-                document.getElementById(id).classList.add('active');
-                if (id === 'courseModal') populateGradeSelect();
-                if (id === 'lessonModal') populateCourseSelect();
-                if (id === 'assignmentModal') populateLessonSelect();
-            };
-            window.closeModal = (id) => document.getElementById(id).classList.remove('active');
-            window.toggleAssignFields = () => {
-                const type = document.getElementById('assignType').value;
-                document.getElementById('mcqOptions').style.display = type === 'mcq' ? 'block' : 'none';
-                document.getElementById('tfOptions').style.display = type === 'tf' ? 'block' : 'none';
-            };
-
-            function populateGradeSelect() {
-                db.ref('grades').once('value', snap => {
-                    const sel = document.getElementById('courseGrade');
-                    sel.innerHTML = '';
-                    const grades = snap.val() || {};
-                    Object.values(grades).forEach(g => { sel.innerHTML +=
-                        `<option>${g.name}</option>`; });
-                });
-            }
-
-            function populateCourseSelect() {
-                db.ref('courses').once('value', snap => {
-                    const sel = document.getElementById('lessonCourse');
-                    sel.innerHTML = '';
-                    const courses = snap.val() || {};
-                    Object.values(courses).forEach(c => { sel.innerHTML +=
-                        `<option>${c.name}</option>`; });
-                });
-            }
-
-            function populateLessonSelect() {
-                db.ref('lessons').once('value', snap => {
-                    const sel = document.getElementById('assignLesson');
-                    sel.innerHTML = '';
-                    const lessons = snap.val() || {};
-                    Object.values(lessons).forEach(l => { sel.innerHTML +=
-                        `<option>${l.title}</option>`; });
-                });
             }
 
             // Tab switching
-            tabs.forEach(tab => {
-                tab.addEventListener('click', (e) => {
+            document.querySelectorAll('.sidebar nav a').forEach(tab => {
+                tab.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.sidebar nav a').forEach(t => t.classList.remove(
+                        'active'));
                     tab.classList.add('active');
-                    showTab(tab.dataset.tab);
+                    currentTab = tab.dataset.tab;
+                    document.getElementById('tabTitle').textContent = tab.textContent.trim();
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove(
+                        'active'));
+                    const panel = document.getElementById('tab-' + currentTab);
+                    if (panel) panel.classList.add('active');
+                    await refreshCurrentTab();
                 });
             });
 
-            // Mobile toggle
+            // Mobile menu
             document.getElementById('menuToggle').addEventListener('click', () => {
                 document.getElementById('sidebar').classList.toggle('open');
             });
 
-            // Search/Filter listeners
-            document.getElementById('studentSearch')?.addEventListener('input', loadStudents);
-            document.getElementById('studentFilter')?.addEventListener('change', loadStudents);
+            // Mouse glow
+            const glow = document.getElementById('mouseGlow');
+            document.addEventListener('mousemove', e => {
+                glow.style.left = e.clientX + 'px';
+                glow.style.top = e.clientY + 'px';
+                glow.style.opacity = '1';
+            });
+            document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
 
             // Ripple effect
             document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.btn-ripple');
+                const btn = e.target.closest('.btn');
                 if (!btn) return;
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple-effect';
@@ -888,8 +1190,44 @@
                 ripple.addEventListener('animationend', () => ripple.remove());
             });
 
-            // Initial load
-            showTab('dashboard');
+            // Initialize
+            async function init() {
+                await renderDashboard();
+                await loadSettings();
+                // Load logo into sidebar
+                const logo = localStorage.getItem('platformLogo');
+                if (logo) {
+                    document.getElementById('sidebarLogoPreview').innerHTML =
+                        `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
+                }
+                console.log('🚀 لوحة التحكم جاهزة | Firebase + Cloudinary + OneSignal');
+            }
+
+            function initLocalFallback() {
+                // Seed some demo data if empty
+                if (!localStorage.getItem('students')) {
+                    localStorage.setItem('students', JSON.stringify([
+                        { id: '1', name: 'أحمد محمد', grade: 'ثالثة ثانوي', phone: '01001234567',
+                            parentPhone: '01009999999', status: 'مفعل', createdAt: new Date()
+                            .toISOString() },
+                        { id: '2', name: 'سارة علي', grade: 'ثانية ثانوي', phone: '01009876543',
+                            parentPhone: '01008888888', status: 'قيد المراجعة', createdAt: new Date()
+                            .toISOString() }
+                    ]));
+                }
+                if (!localStorage.getItem('grades')) {
+                    localStorage.setItem('grades', JSON.stringify([
+                        { id: 'g1', name: 'أولى ثانوي', img: '', courses: 8, order: 1,
+                            createdAt: new Date().toISOString() },
+                        { id: 'g2', name: 'ثانية ثانوي', img: '', courses: 10, order: 2,
+                            createdAt: new Date().toISOString() },
+                        { id: 'g3', name: 'ثالثة ثانوي', img: '', courses: 12, order: 3,
+                            createdAt: new Date().toISOString() }
+                    ]));
+                }
+            }
+
+            init();
         })();
     </script>
 </body>
