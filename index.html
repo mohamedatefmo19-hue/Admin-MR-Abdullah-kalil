@@ -232,9 +232,6 @@
                 box-shadow: 0 0 80px rgba(124, 92, 231, 0.6), 0 0 120px rgba(77, 168, 218, 0.3);
             }
         }
-        .sidebar .logo-img:hover {
-            transform: scale(1.08) rotate(5deg);
-        }
         .sidebar .logo-text {
             font-weight: 800;
             font-size: 1.05rem;
@@ -290,10 +287,6 @@
             width: 20px;
             height: 20px;
             flex-shrink: 0;
-            transition: var(--transition-fast);
-        }
-        .sidebar nav a:hover svg {
-            transform: rotate(5deg) scale(1.1);
         }
         .main {
             flex: 1;
@@ -327,11 +320,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .top-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
         .btn {
             padding: 10px 22px;
             border-radius: 30px;
@@ -351,17 +339,12 @@
             position: relative;
             overflow: hidden;
             text-decoration: none;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
         .btn:hover {
             background: var(--glass-hover);
             border-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
-        }
-        .btn:active {
-            transform: scale(0.96);
         }
         .btn-primary {
             background: var(--accent-gradient);
@@ -377,9 +360,6 @@
             background: rgba(239, 68, 68, 0.15);
             border-color: rgba(239, 68, 68, 0.4);
             color: #f87171;
-        }
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.28);
         }
         .btn-sm {
             padding: 6px 14px;
@@ -432,7 +412,6 @@
             border-radius: var(--radius-lg);
             padding: 24px 20px;
             backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
             transition: var(--transition-bounce);
             position: relative;
             overflow: hidden;
@@ -483,10 +462,6 @@
             justify-content: center;
             margin-bottom: 16px;
             font-size: 1.5rem;
-            transition: var(--transition-smooth);
-        }
-        .stat-card:hover .stat-icon {
-            transform: scale(1.1) rotate(-3deg);
         }
         .stat-card .stat-value {
             font-size: 2.2rem;
@@ -495,13 +470,11 @@
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         .stat-card .stat-label {
             font-size: 0.78rem;
             color: var(--text-muted);
             margin-top: 4px;
-            font-weight: 500;
         }
         .table-wrapper {
             overflow-x: auto;
@@ -509,9 +482,7 @@
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
             backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
             margin-top: 14px;
-            animation: fadeSlideIn 0.5s ease;
         }
         table {
             width: 100%;
@@ -524,21 +495,15 @@
             padding: 14px 18px;
             text-align: right;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            white-space: nowrap;
         }
         th {
             color: var(--text-muted);
             font-weight: 600;
             font-size: 0.72rem;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        tbody tr {
-            transition: background 0.25s, transform 0.2s;
         }
         tbody tr:hover {
             background: rgba(255, 255, 255, 0.025);
-            transform: scale(1.01);
         }
         .badge {
             padding: 5px 12px;
@@ -546,7 +511,6 @@
             font-size: 0.7rem;
             font-weight: 600;
             display: inline-block;
-            letter-spacing: 0.3px;
         }
         .badge-success {
             background: rgba(34, 211, 187, 0.2);
@@ -560,10 +524,6 @@
             background: rgba(239, 68, 68, 0.2);
             color: #f87171;
         }
-        .badge-info {
-            background: rgba(77, 168, 218, 0.2);
-            color: #4da8da;
-        }
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -572,7 +532,6 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -595,7 +554,6 @@
             max-height: 85vh;
             overflow-y: auto;
             backdrop-filter: blur(35px);
-            -webkit-backdrop-filter: blur(35px);
             box-shadow: var(--shadow-lg);
             animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -609,14 +567,6 @@
                 opacity: 1;
             }
         }
-        .modal h3 {
-            margin-bottom: 22px;
-            font-size: 1.25rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
         .form-group {
             margin-bottom: 16px;
         }
@@ -625,7 +575,6 @@
             font-size: 0.82rem;
             margin-bottom: 6px;
             color: var(--text-secondary);
-            font-weight: 500;
         }
         .form-group input,
         .form-group select,
@@ -638,33 +587,18 @@
             color: #fff;
             font-family: var(--font-ar);
             font-size: 0.9rem;
-            transition: 0.25s;
             outline: none;
         }
         .form-group textarea {
             border-radius: 18px;
-            resize: vertical;
             min-height: 85px;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent-2);
-            box-shadow: 0 0 0 4px rgba(124, 92, 231, 0.15);
-            background: rgba(255, 255, 255, 0.06);
+            resize: vertical;
         }
         .form-actions {
             display: flex;
             gap: 12px;
             justify-content: flex-end;
             margin-top: 22px;
-        }
-        .flex-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
         }
         .notification-toast {
             position: fixed;
@@ -679,11 +613,9 @@
             align-items: center;
             gap: 12px;
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            animation: slideInToast 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: slideInToast 0.45s ease;
             box-shadow: var(--shadow-lg);
             font-weight: 600;
-            font-size: 0.9rem;
         }
         @keyframes slideInToast {
             from {
@@ -695,19 +627,13 @@
                 opacity: 1;
             }
         }
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s infinite linear;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -723,24 +649,6 @@
             .main {
                 width: 100%;
             }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-        }
-        .menu-toggle:hover {
-            color: var(--accent-2);
-            transform: scale(1.1);
-        }
-        @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
@@ -749,13 +657,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="aurora-bg">
-        <div class="orb"></div><div class="orb"></div><div class="orb"></div>
-    </div>
+    <div class="aurora-bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
     <div class="floating-shapes">
         <div class="shape hex" style="top:6%;left:4%;"></div>
-        <div class="shape hex" style="top:60%;right:3%;width:60px;height:35px;animation-delay:-7s;"></div>
-        <div class="shape electron" style="top:30%;left:20%;animation-delay:-3s;"></div>
+        <div class="shape hex" style="top:60%;right:3%;width:60px;height:35px;"></div>
+        <div class="shape electron" style="top:30%;left:20%;"></div>
     </div>
     <div class="mouse-glow" id="mouseGlow"></div>
 
@@ -782,56 +688,61 @@
             <button class="menu-toggle" id="menuToggle">☰</button>
             <h2 id="tabTitle">📊 لوحة التحكم الرئيسية</h2>
             <div class="top-actions">
-                <span style="color:var(--text-muted);font-size:0.85rem;">أهلاً بك، مستر عبدالله</span>
                 <a href="index.html" class="btn btn-sm" target="_blank">عرض الموقع</a>
                 <button class="btn btn-primary btn-sm" onclick="sendPushNotification()">🔔 إرسال إشعار</button>
             </div>
         </div>
         <div class="content-area" id="contentArea">
+            <!-- Dashboard Panel -->
             <div class="tab-panel active" id="tab-dashboard">
                 <div class="stats-grid" id="dashStats"></div>
-                <div class="flex-row"><h3 style="font-weight:700;">📋 آخر النشاطات</h3></div>
+                <h3 style="font-weight:700;">📋 آخر النشاطات</h3>
                 <div class="table-wrapper"><table><thead><tr><th>الحدث</th><th>التفاصيل</th><th>الوقت</th></tr></thead><tbody id="recentActivity"></tbody></table></div>
             </div>
+            <!-- Students Panel -->
             <div class="tab-panel" id="tab-students">
-                <div class="flex-row"><input type="text" placeholder="🔍 بحث..." id="studentSearch" style="width:220px;"><select id="studentFilter"><option value="">كل الحالات</option><option>قيد المراجعة</option><option>مفعل</option><option>انتظار الدفع</option><option>محظور</option></select></div>
+                <div class="flex-row"><input type="text" placeholder="🔍 بحث..." id="studentSearch"><select id="studentFilter"><option value="">كل الحالات</option><option>قيد المراجعة</option><option>مفعل</option><option>انتظار الدفع</option><option>محظور</option></select></div>
                 <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>ولي الأمر</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="studentTable"></tbody></table></div>
             </div>
-            <div class="tab-panel" id="tab-grades"><button class="btn btn-primary" onclick="openModal('gradeModal')">➕ إضافة صف</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الصورة</th><th>اسم الصف</th><th>عدد الكورسات</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div></div>
-            <div class="tab-panel" id="tab-courses"><button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>Banner</th><th>الاسم</th><th>الصف</th><th>النوع</th><th>الحالة</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div></div>
-            <div class="tab-panel" id="tab-lessons"><button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث مباشر</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div></div>
-            <div class="tab-panel" id="tab-assignments"><button class="btn btn-primary" onclick="openModal('assignmentModal')">➕ إنشاء واجب</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>صورة السؤال</th><th>الوصف</th><th>المحاضرة</th><th>النوع</th><th>الإجابة</th><th>الحلول</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div></div>
-            <div class="tab-panel" id="tab-exams"><button class="btn btn-primary" onclick="openModal('examModal')">➕ إنشاء امتحان</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الامتحان</th><th>الزمن</th><th>عدد الأسئلة</th><th>إظهار الحل</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div></div>
+            <!-- Grades Panel -->
+            <div class="tab-panel" id="tab-grades"><button class="btn btn-primary" onclick="openModal('gradeModal')">➕ إضافة صف</button><div class="table-wrapper"><table><thead><tr><th>الصورة</th><th>اسم الصف</th><th>عدد الكورسات</th><th>إجراءات</th></tr></thead><tbody id="gradeTable"></tbody></table></div></div>
+            <!-- Courses Panel -->
+            <div class="tab-panel" id="tab-courses"><button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button><div class="table-wrapper"><table><thead><tr><th>Banner</th><th>الاسم</th><th>الصف</th><th>النوع</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div></div>
+            <!-- Lessons Panel -->
+            <div class="tab-panel" id="tab-lessons"><button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button><div class="table-wrapper"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث مباشر</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div></div>
+            <!-- Assignments Panel -->
+            <div class="tab-panel" id="tab-assignments"><button class="btn btn-primary" onclick="openModal('assignmentModal')">➕ إنشاء واجب</button><div class="table-wrapper"><table><thead><tr><th>صورة السؤال</th><th>الوصف</th><th>المحاضرة</th><th>النوع</th><th>الإجابة</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div></div>
+            <!-- Exams Panel -->
+            <div class="tab-panel" id="tab-exams"><button class="btn btn-primary" onclick="openModal('examModal')">➕ إنشاء امتحان</button><div class="table-wrapper"><table><thead><tr><th>الامتحان</th><th>الزمن</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div></div>
+            <!-- Questions Panel -->
             <div class="tab-panel" id="tab-questions"><div class="table-wrapper"><table><thead><tr><th>الطالب</th><th>السؤال</th><th>الحالة</th><th>الرد</th><th>إجراءات</th></tr></thead><tbody id="questionTable"></tbody></table></div></div>
+            <!-- Settings Panel -->
             <div class="tab-panel" id="tab-settings">
                 <div style="display:grid;gap:18px;max-width:680px;">
-                    <h3 style="font-weight:700;">⚙️ إعدادات المنصة</h3>
+                    <h3>⚙️ إعدادات المنصة</h3>
                     <div class="form-group"><label>اسم المنصة</label><input id="settingPlatformName" value="مستر عبدالله خليل"></div>
                     <div class="form-group"><label>الشعار النصي</label><input id="settingSlogan" value="كيمياء ببساطة"></div>
                     <div class="form-group"><label>لوجو المنصة</label>
                         <button class="btn" onclick="uploadLogo()">📷 رفع لوجو جديد</button>
-                        <img id="logoPreview" src="" alt="اللوجو" style="width:85px;height:85px;border-radius:18px;margin-top:10px;object-fit:cover;background:var(--glass-bg);">
+                        <img id="logoPreview" src="" style="width:85px;height:85px;border-radius:18px;margin-top:10px;background:var(--glass-bg);">
                     </div>
                     <div class="form-group"><label>اللون الأساسي</label><input type="color" id="settingPrimaryColor" value="#7c5ce7"></div>
-                    <div class="form-group"><label>عداد الطلاب</label><input type="number" id="settingStudentCount" value="12500"></div>
-                    <div class="form-group"><label>عداد الفيديوهات</label><input type="number" id="settingVideoCount" value="850"></div>
-                    <div class="form-group"><label>عداد الامتحانات</label><input type="number" id="settingExamCount" value="3200"></div>
-                    <div class="form-group"><label>نسبة النجاح %</label><input type="number" id="settingSuccessRate" value="97"></div>
-                    <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ جميع الإعدادات</button>
+                    <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف دراسي</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>صورة الصف</label><button class="btn btn-sm" onclick="uploadGradeImage()">رفع صورة</button><input id="gradeImg" placeholder="سيظهر الرابط هنا" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
-    <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-group"><label>Banner</label><button class="btn btn-sm" onclick="uploadCourseBanner()">رفع بانر</button><input id="courseBanner" placeholder="سيظهر الرابط هنا" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
-    <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>إضافة محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>فيديو المحاضرة</label><button class="btn btn-sm" onclick="uploadLessonVideo()">رفع فيديو</button><input id="lessonVideo" placeholder="سيظهر الرابط هنا" readonly></div><div class="form-group"><label>ملف PDF</label><button class="btn btn-sm" onclick="uploadLessonPdf()">رفع PDF</button><input id="lessonPdf" placeholder="سيظهر الرابط هنا" readonly></div><div class="form-group"><label>بث مباشر</label><select id="lessonLive"><option value="false">لا</option><option value="true">نعم</option></select></div><div class="form-actions"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
-    <div class="modal-overlay" id="assignmentModal"><div class="modal"><h3>إنشاء واجب</h3><div class="form-group"><label>صورة السؤال</label><button class="btn btn-sm" onclick="uploadAssignmentImage()">رفع صورة</button><input id="assignmentImage" placeholder="سيظهر الرابط هنا" readonly></div><div class="form-group"><label>الوصف</label><textarea id="assignmentDesc"></textarea></div><div class="form-group"><label>المحاضرة</label><select id="assignmentLesson"></select></div><div class="form-group"><label>نوع السؤال</label><select id="assignmentType" onchange="toggleAssignmentAnswer()"><option value="essay">مقالي</option><option value="mcq">اختيار من متعدد</option><option value="truefalse">صح أو خطأ</option></select></div><div class="form-group" id="assignmentAnswerGroup" style="display:none;"><label>الإجابة الصحيحة</label><input id="assignmentCorrect"></div><div class="form-actions"><button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button></div></div></div>
-    <div class="modal-overlay" id="examModal"><div class="modal"><h3>إنشاء امتحان</h3><div class="form-group"><label>اسم الامتحان</label><input id="examName"></div><div class="form-group"><label>الزمن (دقيقة)</label><input type="number" id="examTime"></div><div class="form-actions"><button class="btn" onclick="closeModal('examModal')">إلغاء</button><button class="btn btn-primary" onclick="saveExam()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>صورة</label><button class="btn btn-sm" onclick="uploadGradeImage()">رفع</button><input id="gradeImg" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-group"><label>Banner</label><button class="btn btn-sm" onclick="uploadCourseBanner()">رفع</button><input id="courseBanner" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>فيديو</label><button class="btn btn-sm" onclick="uploadLessonVideo()">رفع فيديو</button><input id="lessonVideo" readonly></div><div class="form-group"><label>PDF</label><button class="btn btn-sm" onclick="uploadLessonPdf()">رفع PDF</button><input id="lessonPdf" readonly></div><div class="form-group"><label>بث مباشر</label><select id="lessonLive"><option value="false">لا</option><option value="true">نعم</option></select></div><div class="form-actions"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="assignmentModal"><div class="modal"><h3>واجب</h3><div class="form-group"><label>صورة السؤال</label><button class="btn btn-sm" onclick="uploadAssignmentImage()">رفع</button><input id="assignmentImage" readonly></div><div class="form-group"><label>الوصف</label><textarea id="assignmentDesc"></textarea></div><div class="form-group"><label>المحاضرة</label><select id="assignmentLesson"></select></div><div class="form-group"><label>نوع السؤال</label><select id="assignmentType" onchange="toggleAssignmentAnswer()"><option value="essay">مقالي</option><option value="mcq">اختيار من متعدد</option><option value="truefalse">صح أو خطأ</option></select></div><div class="form-group" id="assignmentAnswerGroup" style="display:none;"><label>الإجابة</label><input id="assignmentCorrect"></div><div class="form-actions"><button class="btn" onclick="closeModal('assignmentModal')">إلغاء</button><button class="btn btn-primary" onclick="saveAssignment()">حفظ</button></div></div></div>
+    <div class="modal-overlay" id="examModal"><div class="modal"><h3>امتحان</h3><div class="form-group"><label>الاسم</label><input id="examName"></div><div class="form-group"><label>الزمن (دقيقة)</label><input type="number" id="examTime"></div><div class="form-actions"><button class="btn" onclick="closeModal('examModal')">إلغاء</button><button class="btn btn-primary" onclick="saveExam()">حفظ</button></div></div></div>
 
     <script>
         (function() {
+            // ==================== الإعدادات الصحيحة ====================
             const firebaseConfig = {
                 apiKey: "AIzaSyDT0xGqGHzyyeB4qcz5AGMKxESCGZNNEWE",
                 authDomain: "abdullah-khalil.firebaseapp.com",
@@ -841,96 +752,148 @@
                 appId: "1:530661483867:web:e2f165e9f808bcfcb8267e",
                 measurementId: "G-D6N5T2G2HQ"
             };
-            const CLOUDINARY_CLOUD_NAME = "864215656447737";
-            const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+            // بيانات Cloudinary الخاصة بك
+            const CLOUDINARY_CLOUD_NAME = "deaevfmvm"; // Cloud name
+            const CLOUDINARY_UPLOAD_PRESET = "ml_default"; // Upload preset
+            const CLOUDINARY_API_KEY = "864215656447737"; // API Key (للحالات الموقعة)
             const ONESIGNAL_APP_ID = "os_v2_app_mk6n33aj55ditcmb3n5fpo66rsihml7iabcekj5ofx5anzjsjoli2ulxvakacn4srunaazbtwcvmdzed45erspjkmljiagwpfhyyl5a";
 
             firebase.initializeApp(firebaseConfig);
             const db = firebase.firestore();
+
+            // OneSignal
             if (ONESIGNAL_APP_ID) {
                 window.OneSignal = window.OneSignal || [];
                 OneSignal.push(function() { OneSignal.init({ appId: ONESIGNAL_APP_ID }); });
             }
 
+            // ==================== دوال Cloudinary ====================
             function uploadToCloudinary(resourceType, onSuccess) {
-                window.cloudinary.openUploadWidget({
+                const options = {
                     cloudName: CLOUDINARY_CLOUD_NAME,
                     uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+                    apiKey: CLOUDINARY_API_KEY,
                     sources: ['local', 'url', 'camera'],
                     multiple: false,
                     resourceType: resourceType,
-                    clientAllowedFormats: resourceType === 'video' ? ['mp4', 'webm', 'mov'] : resourceType ===
-                        'raw' ? ['pdf'] : ['png', 'jpg', 'jpeg', 'gif'],
+                    clientAllowedFormats: resourceType === 'video' ? ['mp4', 'webm', 'mov'] :
+                        resourceType === 'raw' ? ['pdf'] : ['png', 'jpg', 'jpeg', 'gif'],
                     maxFileSize: 500000000,
-                    language: 'ar',
-                }, (error, result) => {
-                    if (error) { showToast('❌ فشل الرفع: ' + error.message); return; }
+                    language: 'ar'
+                };
+                window.cloudinary.openUploadWidget(options, (error, result) => {
+                    if (error) {
+                        showToast('❌ فشل الرفع: ' + error.message);
+                        return;
+                    }
                     if (result && result.event === 'success') {
-                        onSuccess(result.info.secure_url);
+                        const url = result.info.secure_url;
+                        onSuccess(url);
                     }
                 });
             }
 
-            function uploadLogo() { uploadToCloudinary('image', url => { document.getElementById('logoPreview').src =
-                        url;
+            // وظائف الرفع المختلفة
+            function uploadLogo() {
+                uploadToCloudinary('image', (url) => {
+                    document.getElementById('logoPreview').src = url;
                     db.collection('settings').doc('platform').set({ logo: url }, { merge: true });
                     document.getElementById('sidebarLogoPreview').innerHTML =
                         `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
-                    showToast('✅ تم رفع اللوجو بنجاح'); }); }
-
-            function uploadGradeImage() { uploadToCloudinary('image', url => { document.getElementById('gradeImg').value =
-                        url;
-                    showToast('✅ تم رفع صورة الصف'); }); }
-
-            function uploadCourseBanner() { uploadToCloudinary('image', url => { document.getElementById('courseBanner')
-                        .value = url;
-                    showToast('✅ تم رفع البانر'); }); }
-
-            function uploadLessonVideo() { uploadToCloudinary('video', url => { document.getElementById('lessonVideo')
-                        .value = url;
-                    showToast('✅ تم رفع الفيديو'); }); }
-
-            function uploadLessonPdf() { uploadToCloudinary('raw', url => { document.getElementById('lessonPdf').value =
-                        url;
-                    showToast('✅ تم رفع PDF'); }); }
-
-            function uploadAssignmentImage() { uploadToCloudinary('image', url => { document.getElementById(
-                        'assignmentImage').value = url;
-                    showToast('✅ تم رفع صورة السؤال'); }); }
-
-            function toggleAssignmentAnswer() {
-                document.getElementById('assignmentAnswerGroup').style.display = document.getElementById(
-                    'assignmentType').value !== 'essay' ? 'block' : 'none';
+                    showToast('✅ تم رفع اللوجو وحفظ الرابط');
+                });
             }
 
-            const COLLECTIONS = { students: 'students', grades: 'grades', courses: 'courses', lessons: 'lessons',
-                assignments: 'assignments', exams: 'exams', questions: 'questions', activity: 'activity' };
+            function uploadGradeImage() {
+                uploadToCloudinary('image', (url) => {
+                    document.getElementById('gradeImg').value = url;
+                    showToast('✅ تم رفع صورة الصف');
+                });
+            }
 
-            async function getCollection(col) { const snap = await db.collection(col).orderBy('createdAt', 'desc')
-                .get(); return snap.docs.map(d => ({ id: d.id, ...d.data() })); }
+            function uploadCourseBanner() {
+                uploadToCloudinary('image', (url) => {
+                    document.getElementById('courseBanner').value = url;
+                    showToast('✅ تم رفع البانر');
+                });
+            }
 
-            async function addDocument(col, data) { data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                const docRef = await db.collection(col).add(data); return { id: docRef.id, ...data }; }
+            function uploadLessonVideo() {
+                uploadToCloudinary('video', (url) => {
+                    document.getElementById('lessonVideo').value = url;
+                    showToast('✅ تم رفع الفيديو');
+                });
+            }
 
-            async function updateDocument(col, id, data) { await db.collection(col).doc(id).update(data); }
+            function uploadLessonPdf() {
+                uploadToCloudinary('raw', (url) => {
+                    document.getElementById('lessonPdf').value = url;
+                    showToast('✅ تم رفع PDF');
+                });
+            }
 
-            async function deleteDocument(col, id) { await db.collection(col).doc(id).delete(); }
+            function uploadAssignmentImage() {
+                uploadToCloudinary('image', (url) => {
+                    document.getElementById('assignmentImage').value = url;
+                    showToast('✅ تم رفع صورة السؤال');
+                });
+            }
 
+            function toggleAssignmentAnswer() {
+                document.getElementById('assignmentAnswerGroup').style.display =
+                    document.getElementById('assignmentType').value !== 'essay' ? 'block' : 'none';
+            }
+
+            // ==================== Firebase CRUD ====================
+            const COLLECTIONS = {
+                students: 'students',
+                grades: 'grades',
+                courses: 'courses',
+                lessons: 'lessons',
+                assignments: 'assignments',
+                exams: 'exams',
+                questions: 'questions',
+                activity: 'activity'
+            };
+
+            async function getCollection(col) {
+                const snap = await db.collection(col).orderBy('createdAt', 'desc').get();
+                return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            }
+
+            async function addDocument(col, data) {
+                data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                const docRef = await db.collection(col).add(data);
+                return { id: docRef.id, ...data };
+            }
+
+            async function updateDocument(col, id, data) {
+                await db.collection(col).doc(id).update(data);
+            }
+
+            async function deleteDocument(col, id) {
+                await db.collection(col).doc(id).delete();
+            }
+
+            // ==================== عرض البيانات ====================
             async function renderDashboard() {
-                const [s, c, l, e, a, q] = await Promise.all([getCollection(COLLECTIONS.students), getCollection(
-                        COLLECTIONS.courses), getCollection(COLLECTIONS.lessons), getCollection(COLLECTIONS.exams),
+                const [students, courses, lessons, exams, assignments, questions] = await Promise.all([
+                    getCollection(COLLECTIONS.students), getCollection(COLLECTIONS.courses),
+                    getCollection(COLLECTIONS.lessons), getCollection(COLLECTIONS.exams),
                     getCollection(COLLECTIONS.assignments), getCollection(COLLECTIONS.questions)
                 ]);
                 document.getElementById('dashStats').innerHTML = [
-                    { icon: '👥', color: '#4da8da', val: s.length, label: 'طالب' },
-                    { icon: '📚', color: '#7c5ce7', val: c.length, label: 'كورس' },
-                    { icon: '🎬', color: '#22d3bb', val: l.length, label: 'محاضرة' },
-                    { icon: '📝', color: '#f472b6', val: e.length, label: 'امتحان' },
-                    { icon: '📋', color: '#fbbf24', val: a.length, label: 'واجب' },
-                    { icon: '❓', color: '#4da8da', val: q.length, label: 'سؤال' }
+                    { icon: '👥', color: '#4da8da', val: students.length, label: 'طالب' },
+                    { icon: '📚', color: '#7c5ce7', val: courses.length, label: 'كورس' },
+                    { icon: '🎬', color: '#22d3bb', val: lessons.length, label: 'محاضرة' },
+                    { icon: '📝', color: '#f472b6', val: exams.length, label: 'امتحان' },
+                    { icon: '📋', color: '#fbbf24', val: assignments.length, label: 'واجب' },
+                    { icon: '❓', color: '#4da8da', val: questions.length, label: 'سؤال' }
                 ].map(d => `<div class="stat-card"><div class="stat-icon" style="background:${d.color}22;color:${d.color};">${d.icon}</div><div class="stat-value">${d.val}</div><div class="stat-label">${d.label}</div></div>`).join('');
                 const act = await getCollection(COLLECTIONS.activity);
-                document.getElementById('recentActivity').innerHTML = act.slice(0, 10).map(a => `<tr><td>${a.event}</td><td>${a.detail}</td><td>${a.createdAt?new Date(a.createdAt.seconds*1000).toLocaleString('ar-EG'):''}</td></tr>`).join('');
+                document.getElementById('recentActivity').innerHTML = act.slice(0, 10).map(a =>
+                    `<tr><td>${a.event}</td><td>${a.detail}</td><td>${a.createdAt?new Date(a.createdAt.seconds*1000).toLocaleString('ar-EG'):''}</td></tr>`
+                ).join('') || '<tr><td colspan="3">لا يوجد نشاط</td></tr>';
             }
 
             async function renderStudents() {
@@ -940,30 +903,30 @@
 
             async function renderGrades() {
                 const gr = await getCollection(COLLECTIONS.grades);
-                document.getElementById('gradeTable').innerHTML = gr.map(g => `<tr><td>${g.img?`<img src="${g.img}" style="width:40px;height:40px;border-radius:8px;">`:''}</td><td>${g.name}</td><td>${g.courses||0}</td><td>${g.order||0}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('grades','${g.id}')">🗑️</button></td></tr>`).join('');
+                document.getElementById('gradeTable').innerHTML = gr.map(g => `<tr><td>${g.img?`<img src="${g.img}" style="width:40px;height:40px;border-radius:8px;">`:''}</td><td>${g.name}</td><td>${g.courses||0}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('grades','${g.id}')">🗑️</button></td></tr>`).join('');
                 document.getElementById('courseGrade').innerHTML = gr.map(g => `<option>${g.name}</option>`).join('');
             }
 
             async function renderCourses() {
                 const co = await getCollection(COLLECTIONS.courses);
-                document.getElementById('courseTable').innerHTML = co.map(c => `<tr><td>${c.banner?`<img src="${c.banner}" style="width:40px;height:40px;border-radius:8px;">`:'📚'}</td><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td>${c.status||'ظاهر'}</td><td>${c.order||0}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('courses','${c.id}')">🗑️</button></td></tr>`).join('');
+                document.getElementById('courseTable').innerHTML = co.map(c => `<tr><td>${c.banner?`<img src="${c.banner}" style="width:40px;height:40px;border-radius:8px;">`:'📚'}</td><td>${c.name}</td><td>${c.grade}</td><td>${c.type}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('courses','${c.id}')">🗑️</button></td></tr>`).join('');
                 document.getElementById('lessonCourse').innerHTML = co.map(c => `<option>${c.name}</option>`).join('');
             }
 
             async function renderLessons() {
                 const le = await getCollection(COLLECTIONS.lessons);
-                document.getElementById('lessonTable').innerHTML = le.map(l => `<tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.pdf?'✅':'❌'}</td><td>${l.live?'نعم':'لا'}</td><td>${l.order||0}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('lessons','${l.id}')">🗑️</button></td></tr>`).join('');
+                document.getElementById('lessonTable').innerHTML = le.map(l => `<tr><td>${l.title}</td><td>${l.course}</td><td>${l.video?'✅':'❌'}</td><td>${l.pdf?'✅':'❌'}</td><td>${l.live?'نعم':'لا'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('lessons','${l.id}')">🗑️</button></td></tr>`).join('');
                 document.getElementById('assignmentLesson').innerHTML = le.map(l => `<option>${l.title}</option>`).join('');
             }
 
             async function renderAssignments() {
                 const as = await getCollection(COLLECTIONS.assignments);
-                document.getElementById('assignmentTable').innerHTML = as.map(a => `<tr><td>${a.image?`<img src="${a.image}" style="width:40px;height:40px;border-radius:8px;">`:'📝'}</td><td>${a.desc||''}</td><td>${a.lesson}</td><td>${a.type}</td><td>${a.correct||'-'}</td><td>${a.solutions||0}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('assignments','${a.id}')">🗑️</button></td></tr>`).join('');
+                document.getElementById('assignmentTable').innerHTML = as.map(a => `<tr><td>${a.image?`<img src="${a.image}" style="width:40px;height:40px;border-radius:8px;">`:'📝'}</td><td>${a.desc||''}</td><td>${a.lesson}</td><td>${a.type}</td><td>${a.correct||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('assignments','${a.id}')">🗑️</button></td></tr>`).join('');
             }
 
             async function renderExams() {
                 const ex = await getCollection(COLLECTIONS.exams);
-                document.getElementById('examTable').innerHTML = ex.map(e => `<tr><td>${e.name}</td><td>${e.time} دقيقة</td><td>${e.questions||0}</td><td>${e.showAnswer?'نعم':'لا'}</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('exams','${e.id}')">🗑️</button></td></tr>`).join('');
+                document.getElementById('examTable').innerHTML = ex.map(e => `<tr><td>${e.name}</td><td>${e.time} دقيقة</td><td><button class="btn btn-sm btn-danger" onclick="window.deleteDoc('exams','${e.id}')">🗑️</button></td></tr>`).join('');
             }
 
             async function renderQuestions() {
@@ -977,10 +940,6 @@
                 document.getElementById('settingPlatformName').value = s.platformName || 'مستر عبدالله خليل';
                 document.getElementById('settingSlogan').value = s.slogan || 'كيمياء ببساطة';
                 document.getElementById('settingPrimaryColor').value = s.primaryColor || '#7c5ce7';
-                document.getElementById('settingStudentCount').value = s.studentCount || 12500;
-                document.getElementById('settingVideoCount').value = s.videoCount || 850;
-                document.getElementById('settingExamCount').value = s.examCount || 3200;
-                document.getElementById('settingSuccessRate').value = s.successRate || 97;
                 const logo = s.logo || '';
                 document.getElementById('logoPreview').src = logo;
                 if (logo) document.getElementById('sidebarLogoPreview').innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
@@ -991,72 +950,80 @@
                     platformName: document.getElementById('settingPlatformName').value,
                     slogan: document.getElementById('settingSlogan').value,
                     primaryColor: document.getElementById('settingPrimaryColor').value,
-                    studentCount: parseInt(document.getElementById('settingStudentCount').value),
-                    videoCount: parseInt(document.getElementById('settingVideoCount').value),
-                    examCount: parseInt(document.getElementById('settingExamCount').value),
-                    successRate: parseInt(document.getElementById('settingSuccessRate').value),
                     logo: document.getElementById('logoPreview').src
                 }, { merge: true });
                 showToast('✅ تم حفظ الإعدادات');
             }
 
-            window.changeStatus = async (id, status) => { await updateDocument(COLLECTIONS.students, id, { status });
+            // إجراءات سريعة
+            window.changeStatus = async (id, status) => {
+                await updateDocument(COLLECTIONS.students, id, { status });
                 renderStudents();
-                showToast(`✅ تم تغيير الحالة إلى ${status}`); };
-            window.deleteDoc = async (col, id) => { if (confirm('تأكيد الحذف?')) { await deleteDocument(col, id);
+                showToast(`✅ تم تغيير الحالة إلى ${status}`);
+            };
+            window.deleteDoc = async (col, id) => {
+                if (confirm('تأكيد الحذف؟')) {
+                    await deleteDocument(col, id);
                     refreshCurrentTab();
-                    showToast('🗑️ تم الحذف'); } };
-            window.replyQuestion = async (id) => { const reply = prompt('الرد:'); if (reply) { await updateDocument(
-                        COLLECTIONS.questions, id, { reply, status: 'تم الرد' });
+                    showToast('🗑️ تم الحذف');
+                }
+            };
+            window.replyQuestion = async (id) => {
+                const reply = prompt('الرد:');
+                if (reply) {
+                    await updateDocument(COLLECTIONS.questions, id, { reply, status: 'تم الرد' });
                     renderQuestions();
-                    showToast('✅ تم الرد'); } };
+                    showToast('✅ تم الرد');
+                }
+            };
 
+            // حفظ النماذج
             async function saveGrade() {
                 const name = document.getElementById('gradeName').value;
                 const img = document.getElementById('gradeImg').value;
                 if (!name) return showToast('⚠️ أدخل اسم الصف');
-                await addDocument(COLLECTIONS.grades, { name, img, courses: 0, order: 0 });
+                await addDocument(COLLECTIONS.grades, { name, img, courses: 0 });
                 closeModal('gradeModal');
                 renderGrades();
                 showToast('✅ تم إضافة الصف');
             }
             async function saveCourse() {
-                const name = document.getElementById('courseName').value,
-                    grade = document.getElementById('courseGrade').value,
-                    type = document.getElementById('courseType').value,
-                    banner = document.getElementById('courseBanner').value;
+                const name = document.getElementById('courseName').value;
+                const grade = document.getElementById('courseGrade').value;
+                const type = document.getElementById('courseType').value;
+                const banner = document.getElementById('courseBanner').value;
                 if (!name) return showToast('⚠️ أدخل اسم الكورس');
-                await addDocument(COLLECTIONS.courses, { name, grade, type, banner, status: 'ظاهر', order: 0 });
+                await addDocument(COLLECTIONS.courses, { name, grade, type, banner, status: 'ظاهر' });
                 closeModal('courseModal');
                 renderCourses();
                 showToast('✅ تم إضافة الكورس');
             }
             async function saveLesson() {
-                const title = document.getElementById('lessonTitle').value,
-                    course = document.getElementById('lessonCourse').value,
-                    video = document.getElementById('lessonVideo').value,
-                    pdf = document.getElementById('lessonPdf').value,
-                    live = document.getElementById('lessonLive').value === 'true';
-                if (!title) return showToast('⚠️ أدخل عنوان المحاضرة');
-                await addDocument(COLLECTIONS.lessons, { title, course, video, pdf, live, order: 0 });
+                const title = document.getElementById('lessonTitle').value;
+                const course = document.getElementById('lessonCourse').value;
+                const video = document.getElementById('lessonVideo').value;
+                const pdf = document.getElementById('lessonPdf').value;
+                const live = document.getElementById('lessonLive').value === 'true';
+                if (!title) return showToast('⚠️ أدخل العنوان');
+                await addDocument(COLLECTIONS.lessons, { title, course, video, pdf, live });
                 closeModal('lessonModal');
                 renderLessons();
                 showToast('✅ تمت إضافة المحاضرة');
             }
             async function saveAssignment() {
-                const desc = document.getElementById('assignmentDesc').value,
-                    lesson = document.getElementById('assignmentLesson').value,
-                    type = document.getElementById('assignmentType').value,
-                    correct = document.getElementById('assignmentCorrect')?.value || '',
-                    image = document.getElementById('assignmentImage').value;
+                const desc = document.getElementById('assignmentDesc').value;
+                const lesson = document.getElementById('assignmentLesson').value;
+                const type = document.getElementById('assignmentType').value;
+                const correct = document.getElementById('assignmentCorrect')?.value || '';
+                const image = document.getElementById('assignmentImage').value;
                 await addDocument(COLLECTIONS.assignments, { image, desc, lesson, type, correct, solutions: 0 });
                 closeModal('assignmentModal');
                 renderAssignments();
                 showToast('✅ تم إنشاء الواجب');
             }
             async function saveExam() {
-                const name = document.getElementById('examName').value,
-                    time = document.getElementById('examTime').value;
+                const name = document.getElementById('examName').value;
+                const time = document.getElementById('examTime').value;
                 if (!name) return showToast('⚠️ أدخل اسم الامتحان');
                 await addDocument(COLLECTIONS.exams, { name, time, questions: 0, showAnswer: false });
                 closeModal('examModal');
@@ -1064,6 +1031,7 @@
                 showToast('✅ تم إنشاء الامتحان');
             }
 
+            // وظائف عامة
             function openModal(id) { document.getElementById(id).classList.add('active'); }
 
             function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -1082,26 +1050,27 @@
                 showToast('✅ تم الإرسال');
             }
 
+            // تعريض الدوال للنطاق العام
             window.openModal = openModal;
             window.closeModal = closeModal;
-            window.saveGrade = saveGrade;
-            window.saveCourse = saveCourse;
-            window.saveLesson = saveLesson;
-            window.saveAssignment = saveAssignment;
-            window.saveExam = saveExam;
             window.uploadLogo = uploadLogo;
             window.uploadGradeImage = uploadGradeImage;
             window.uploadCourseBanner = uploadCourseBanner;
             window.uploadLessonVideo = uploadLessonVideo;
             window.uploadLessonPdf = uploadLessonPdf;
             window.uploadAssignmentImage = uploadAssignmentImage;
+            window.saveGrade = saveGrade;
+            window.saveCourse = saveCourse;
+            window.saveLesson = saveLesson;
+            window.saveAssignment = saveAssignment;
+            window.saveExam = saveExam;
             window.sendPushNotification = sendPushNotification;
 
             let currentTab = 'dashboard';
             async function refreshCurrentTab() {
                 const map = { dashboard: renderDashboard, students: renderStudents, grades: renderGrades,
-                    courses: renderCourses, lessons: renderLessons, assignments: renderAssignments, exams: renderExams,
-                    questions: renderQuestions, settings: loadSettings };
+                    courses: renderCourses, lessons: renderLessons, assignments: renderAssignments,
+                    exams: renderExams, questions: renderQuestions, settings: loadSettings };
                 if (map[currentTab]) await map[currentTab]();
             }
 
@@ -1113,26 +1082,33 @@
                     tab.classList.add('active');
                     currentTab = tab.dataset.tab;
                     document.getElementById('tabTitle').textContent = tab.textContent.trim();
-                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove(
+                    'active'));
                     document.getElementById('tab-' + currentTab).classList.add('active');
                     await refreshCurrentTab();
                 });
             });
 
-            document.getElementById('menuToggle').addEventListener('click', () => document.getElementById(
-                'sidebar').classList.toggle('open'));
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+
+            // تأثيرات
             const glow = document.getElementById('mouseGlow');
-            document.addEventListener('mousemove', e => { glow.style.left = e.clientX + 'px';
+            document.addEventListener('mousemove', e => {
+                glow.style.left = e.clientX + 'px';
                 glow.style.top = e.clientY + 'px';
-                glow.style.opacity = '1'; });
+                glow.style.opacity = '1';
+            });
             document.addEventListener('mouseleave', () => glow.style.opacity = '0');
+
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.btn');
                 if (!btn) return;
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple-effect';
-                const rect = btn.getBoundingClientRect(),
-                    size = Math.max(rect.width, rect.height);
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
                 ripple.style.width = ripple.style.height = size + 'px';
                 ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
                 ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
@@ -1140,9 +1116,11 @@
                 ripple.addEventListener('animationend', () => ripple.remove());
             });
 
+            // بدء التشغيل
             async function init() {
                 await renderDashboard();
                 await loadSettings();
+                console.log('🚀 لوحة التحكم جاهزة | Cloudinary مفتاح API مضمن');
             }
             init();
         })();
