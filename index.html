@@ -64,7 +64,6 @@
             position: relative;
             cursor: default;
         }
-        /* Aurora Background */
         .aurora-bg {
             position: fixed;
             top: 0;
@@ -119,7 +118,6 @@
                 transform: translate(-80px, -50px) scale(1.1);
             }
         }
-        /* Floating shapes */
         .floating-shapes {
             position: fixed;
             top: 0;
@@ -177,7 +175,6 @@
                 transform: translate(0, 0);
             }
         }
-        /* Mouse Glow */
         .mouse-glow {
             position: fixed;
             pointer-events: none;
@@ -190,7 +187,6 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-        /* Sidebar */
         .sidebar {
             width: 280px;
             background: rgba(10, 10, 30, 0.7);
@@ -295,7 +291,6 @@
             height: 20px;
             flex-shrink: 0;
         }
-        /* Main */
         .main {
             flex: 1;
             display: flex;
@@ -421,7 +416,6 @@
                 transform: translateY(0) scale(1);
             }
         }
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
@@ -505,7 +499,6 @@
             margin-top: 4px;
             font-weight: 500;
         }
-        /* Tables */
         .table-wrapper {
             overflow-x: auto;
             background: var(--glass-bg);
@@ -567,7 +560,6 @@
             background: rgba(77, 168, 218, 0.2);
             color: #4da8da;
         }
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -670,7 +662,6 @@
             flex-wrap: wrap;
             margin-bottom: 16px;
         }
-        /* Toast Notification */
         .notification-toast {
             position: fixed;
             bottom: 30px;
@@ -714,7 +705,6 @@
                 transform: rotate(360deg);
             }
         }
-        /* Question Block */
         .question-block {
             background: rgba(255, 255, 255, 0.025);
             border: 1px solid var(--glass-border);
@@ -798,7 +788,6 @@
     </div>
     <div class="mouse-glow" id="mouseGlow"></div>
 
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="logo-area">
             <div class="logo-img" id="sidebarLogoPreview">⚛️</div>
@@ -817,7 +806,6 @@
         </nav>
     </aside>
 
-    <!-- Main Content -->
     <div class="main">
         <div class="top-bar">
             <button class="menu-toggle" id="menuToggle">☰</button>
@@ -845,7 +833,7 @@
             <div class="tab-panel" id="tab-courses"><button class="btn btn-primary" onclick="openModal('courseModal')">➕ إضافة كورس</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>Banner</th><th>الاسم</th><th>الصف</th><th>النوع</th><th>الحالة</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="courseTable"></tbody></table></div></div>
             <!-- Lessons Panel -->
             <div class="tab-panel" id="tab-lessons"><button class="btn btn-primary" onclick="openModal('lessonModal')">➕ إضافة محاضرة</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>العنوان</th><th>الكورس</th><th>فيديو</th><th>PDF</th><th>بث مباشر</th><th>ترتيب</th><th>إجراءات</th></tr></thead><tbody id="lessonTable"></tbody></table></div></div>
-            <!-- Assignments Panel (Updated) -->
+            <!-- Assignments Panel -->
             <div class="tab-panel" id="tab-assignments"><button class="btn btn-primary" onclick="openAssignmentModal()">➕ إنشاء واجب متعدد الاختيارات</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الوصف</th><th>المحاضرة</th><th>عدد الأسئلة</th><th>إجراءات</th></tr></thead><tbody id="assignmentTable"></tbody></table></div></div>
             <!-- Exams Panel -->
             <div class="tab-panel" id="tab-exams"><button class="btn btn-primary" onclick="openModal('examModal')">➕ إنشاء امتحان</button><div class="table-wrapper" style="margin-top:12px;"><table><thead><tr><th>الامتحان</th><th>الزمن</th><th>عدد الأسئلة</th><th>إظهار الحل</th><th>إجراءات</th></tr></thead><tbody id="examTable"></tbody></table></div></div>
@@ -872,7 +860,7 @@
         </div>
     </div>
 
-    <!-- Modals (Grades, Courses, Lessons - kept simple) -->
+    <!-- Modals -->
     <div class="modal-overlay" id="gradeModal"><div class="modal"><h3>إضافة صف</h3><div class="form-group"><label>اسم الصف</label><input id="gradeName"></div><div class="form-group"><label>صورة</label><button class="btn btn-sm" onclick="uploadGradeImage()">رفع</button><input id="gradeImg" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('gradeModal')">إلغاء</button><button class="btn btn-primary" onclick="saveGrade()">حفظ</button></div></div></div>
     <div class="modal-overlay" id="courseModal"><div class="modal"><h3>إضافة كورس</h3><div class="form-group"><label>الاسم</label><input id="courseName"></div><div class="form-group"><label>الصف</label><select id="courseGrade"></select></div><div class="form-group"><label>النوع</label><select id="courseType"><option>مجاني</option><option>مدفوع</option></select></div><div class="form-group"><label>Banner</label><button class="btn btn-sm" onclick="uploadCourseBanner()">رفع</button><input id="courseBanner" readonly></div><div class="form-actions"><button class="btn" onclick="closeModal('courseModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCourse()">حفظ</button></div></div></div>
     <div class="modal-overlay" id="lessonModal"><div class="modal"><h3>محاضرة</h3><div class="form-group"><label>العنوان</label><input id="lessonTitle"></div><div class="form-group"><label>الكورس</label><select id="lessonCourse"></select></div><div class="form-group"><label>فيديو</label><button class="btn btn-sm" onclick="uploadLessonVideo()">رفع فيديو</button><input id="lessonVideo" readonly></div><div class="form-group"><label>PDF</label><button class="btn btn-sm" onclick="uploadLessonPdf()">رفع PDF</button><input id="lessonPdf" readonly></div><div class="form-group"><label>بث مباشر</label><select id="lessonLive"><option value="false">لا</option><option value="true">نعم</option></select></div><div class="form-actions"><button class="btn" onclick="closeModal('lessonModal')">إلغاء</button><button class="btn btn-primary" onclick="saveLesson()">حفظ</button></div></div></div>
@@ -948,20 +936,21 @@
                     showToast('✅ تم رفع اللوجو وحفظ الرابط');
                 });
             }
-            function uploadGradeImage() { uploadToCloudinary('image', url => { document.getElementById('gradeImg').value = url;
-            showToast('✅ تم رفع صورة الصف'); }); }
+            function uploadGradeImage() { uploadToCloudinary('image', url => { document.getElementById('gradeImg').value =
+                        url;
+                    showToast('✅ تم رفع صورة الصف'); }); }
 
             function uploadCourseBanner() { uploadToCloudinary('image', url => { document.getElementById('courseBanner')
-            .value = url;
-            showToast('✅ تم رفع البانر'); }); }
+                    .value = url;
+                showToast('✅ تم رفع البانر'); }); }
 
             function uploadLessonVideo() { uploadToCloudinary('video', url => { document.getElementById('lessonVideo')
-            .value = url;
-            showToast('✅ تم رفع الفيديو'); }); }
+                    .value = url;
+                showToast('✅ تم رفع الفيديو'); }); }
 
             function uploadLessonPdf() { uploadToCloudinary('raw', url => { document.getElementById('lessonPdf').value =
-            url;
-            showToast('✅ تم رفع PDF'); }); }
+                        url;
+                    showToast('✅ تم رفع PDF'); }); }
 
             window.uploadLogo = uploadLogo;
             window.uploadGradeImage = uploadGradeImage;
@@ -976,14 +965,20 @@
                 currentQuestions = [];
                 document.getElementById('assignmentDesc').value = '';
                 document.getElementById('questionsContainer').innerHTML = '';
-                // Populate lessons dropdown
+                // Populate lessons dropdown safely
                 db.collection('lessons').get().then(snap => {
                     const sel = document.getElementById('assignmentLesson');
-                    sel.innerHTML = '';
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        sel.innerHTML += `<option value="${doc.id}">${d.title}</option>`;
-                    });
+                    sel.innerHTML = '<option value="">اختر محاضرة</option>';
+                    if (!snap.empty) {
+                        snap.forEach(doc => {
+                            const d = doc.data();
+                            sel.innerHTML +=
+                                `<option value="${doc.id}">${d.title || 'بدون عنوان'}</option>`;
+                        });
+                    }
+                }).catch(err => {
+                    console.error('Error loading lessons:', err);
+                    showToast('⚠️ تعذر تحميل المحاضرات');
                 });
                 openModal('assignmentModal');
             }
@@ -1042,7 +1037,6 @@
                 `).join('');
             }
 
-            // Expose functions to global scope for onclick handlers
             window.addQuestion = addQuestion;
             window.removeQuestion = removeQuestion;
             window.setCorrect = setCorrect;
@@ -1067,53 +1061,70 @@
                 const desc = document.getElementById('assignmentDesc').value;
                 const lessonId = document.getElementById('assignmentLesson').value;
                 if (!desc || currentQuestions.length === 0) return showToast('⚠️ أضف وصفاً وسؤالاً واحداً على الأقل');
+                if (!lessonId) return showToast('⚠️ اختر محاضرة مرتبطة');
 
                 // Final sync from inputs
                 currentQuestions.forEach(q => {
                     q.text = document.getElementById('qText_' + q.id)?.value || q.text;
                     q.image = document.getElementById('qImg_' + q.id)?.value || q.image;
                     ['أ', 'ب', 'ج', 'د'].forEach((_, i) => {
-                        q.options[i] = document.getElementById('opt_' + q.id + '_' + i)?.value || q
-                            .options[i];
+                        q.options[i] = document.getElementById('opt_' + q.id + '_' + i)?.value ||
+                            q.options[i];
                     });
                 });
 
-                await db.collection('assignments').add({
-                    desc,
-                    lessonId,
-                    questions: currentQuestions,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                closeModal('assignmentModal');
-                currentQuestions = [];
-                renderQuestions();
-                renderAssignments();
-                showToast('✅ تم حفظ الواجب مع ' + currentQuestions.length + ' سؤال');
+                try {
+                    await db.collection('assignments').add({
+                        desc,
+                        lessonId,
+                        questions: currentQuestions,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    closeModal('assignmentModal');
+                    currentQuestions = [];
+                    renderQuestions();
+                    renderAssignments();
+                    showToast('✅ تم حفظ الواجب مع ' + currentQuestions.length + ' سؤال');
+                } catch (e) {
+                    console.error('Save assignment error:', e);
+                    showToast('❌ فشل حفظ الواجب');
+                }
             }
 
             window.saveAssignment = saveAssignment;
             window.openAssignmentModal = openAssignmentModal;
 
             async function renderAssignments() {
-                const snap = await db.collection('assignments').orderBy('createdAt', 'desc').get();
-                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                document.getElementById('assignmentTable').innerHTML = data.map(a => `
-                    <tr>
-                        <td>${a.desc || ''}</td>
-                        <td>${a.lessonId || '—'}</td>
-                        <td>${a.questions?.length || 0}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteAssignment('${a.id}')">🗑️ حذف</button>
-                        </td>
-                    </tr>
-                `).join('');
+                try {
+                    const snap = await db.collection('assignments').orderBy('createdAt', 'desc').get();
+                    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    document.getElementById('assignmentTable').innerHTML = data.map(a => `
+                        <tr>
+                            <td>${a.desc || ''}</td>
+                            <td>${a.lessonId || '—'}</td>
+                            <td>${a.questions?.length || 0}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="deleteAssignment('${a.id}')">🗑️ حذف</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (e) {
+                    console.error('Render assignments error:', e);
+                    document.getElementById('assignmentTable').innerHTML =
+                        '<tr><td colspan="4">تعذر تحميل الواجبات</td></tr>';
+                }
             }
 
             window.deleteAssignment = async (id) => {
                 if (confirm('تأكيد حذف الواجب؟')) {
-                    await db.collection('assignments').doc(id).delete();
-                    renderAssignments();
-                    showToast('🗑️ تم حذف الواجب');
+                    try {
+                        await db.collection('assignments').doc(id).delete();
+                        renderAssignments();
+                        showToast('🗑️ تم حذف الواجب');
+                    } catch (e) {
+                        console.error(e);
+                        showToast('❌ فشل الحذف');
+                    }
                 }
             };
 
@@ -1154,24 +1165,28 @@
                 setTimeout(() => t.remove(), 3000);
             }
 
-            // ==================== INITIAL RENDERS ====================
+            // ==================== DASHBOARD RENDER ====================
             async function renderDashboard() {
-                const [students, courses, lessons, exams, assignments, questions] = await Promise.all([
-                    db.collection('students').get().then(s => s.size),
-                    db.collection('courses').get().then(s => s.size),
-                    db.collection('lessons').get().then(s => s.size),
-                    db.collection('exams').get().then(s => s.size),
-                    db.collection('assignments').get().then(s => s.size),
-                    db.collection('questions').get().then(s => s.size)
-                ]);
-                document.getElementById('dashStats').innerHTML = `
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">👥</div><div class="stat-value">${students}</div><div class="stat-label">طالب</div></div>
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(124,92,231,0.2);color:#7c5ce7;">📚</div><div class="stat-value">${courses}</div><div class="stat-label">كورس</div></div>
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(34,211,187,0.2);color:#22d3bb;">🎬</div><div class="stat-value">${lessons}</div><div class="stat-label">محاضرة</div></div>
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(244,114,182,0.2);color:#f472b6;">📝</div><div class="stat-value">${exams}</div><div class="stat-label">امتحان</div></div>
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,0.2);color:#fbbf24;">📋</div><div class="stat-value">${assignments}</div><div class="stat-label">واجب</div></div>
-                    <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">❓</div><div class="stat-value">${questions}</div><div class="stat-label">سؤال</div></div>
-                `;
+                try {
+                    const counts = await Promise.all([
+                        db.collection('students').get().then(s => s.size),
+                        db.collection('courses').get().then(s => s.size),
+                        db.collection('lessons').get().then(s => s.size),
+                        db.collection('exams').get().then(s => s.size),
+                        db.collection('assignments').get().then(s => s.size),
+                        db.collection('questions').get().then(s => s.size)
+                    ]);
+                    document.getElementById('dashStats').innerHTML = `
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">👥</div><div class="stat-value">${counts[0]}</div><div class="stat-label">طالب</div></div>
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(124,92,231,0.2);color:#7c5ce7;">📚</div><div class="stat-value">${counts[1]}</div><div class="stat-label">كورس</div></div>
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(34,211,187,0.2);color:#22d3bb;">🎬</div><div class="stat-value">${counts[2]}</div><div class="stat-label">محاضرة</div></div>
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(244,114,182,0.2);color:#f472b6;">📝</div><div class="stat-value">${counts[3]}</div><div class="stat-label">امتحان</div></div>
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,0.2);color:#fbbf24;">📋</div><div class="stat-value">${counts[4]}</div><div class="stat-label">واجب</div></div>
+                        <div class="stat-card"><div class="stat-icon" style="background:rgba(77,168,218,0.2);color:#4da8da;">❓</div><div class="stat-value">${counts[5]}</div><div class="stat-label">سؤال</div></div>
+                    `;
+                } catch (e) {
+                    console.error('Dashboard error:', e);
+                }
             }
 
             // Tab switching
@@ -1182,19 +1197,18 @@
                     tab.classList.add('active');
                     const panelId = 'tab-' + tab.dataset.tab;
                     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                    document.getElementById(panelId).classList.add('active');
+                    const panel = document.getElementById(panelId);
+                    if (panel) panel.classList.add('active');
                     document.getElementById('tabTitle').textContent = tab.textContent.trim();
                     if (tab.dataset.tab === 'assignments') renderAssignments();
                     if (tab.dataset.tab === 'dashboard') renderDashboard();
                 });
             });
 
-            // Mobile menu toggle
             document.getElementById('menuToggle').addEventListener('click', () => {
                 document.getElementById('sidebar').classList.toggle('open');
             });
 
-            // Mouse glow
             const glow = document.getElementById('mouseGlow');
             document.addEventListener('mousemove', e => {
                 glow.style.left = e.clientX + 'px';
@@ -1203,7 +1217,6 @@
             });
             document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
 
-            // Ripple effect
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.btn');
                 if (!btn) return;
