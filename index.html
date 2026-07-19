@@ -378,42 +378,49 @@
     };
     window.deleteExam = async id => { if(confirm('حذف؟')) { await db.collection('exams').doc(id).delete(); renderExams(); } };
 
-    // ========== جداول الحصص ==========
+    // ========== جداول الحصص (مع تحديد المجموعة) ==========
     async function renderSchedules() {
         const snap = await db.collection('schedules').get();
         let html = `<div class="card fade-in-up"><h3>📅 جداول الحصص</h3><button class="btn btn-primary" onclick="window.showAddSchedule()">➕ إضافة جدول</button></div>`;
-        html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>الصف</th><th>الصورة</th><th>إجراءات</th></tr></thead><tbody>';
-        snap.forEach(doc => {
+        html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>الصف</th><th>المجموعة</th><th>الصورة</th><th>إجراءات</th></tr></thead><tbody>';
+        for (const doc of snap.docs) {
             const s = doc.data();
-            html += `<tr><td>${s.grade}</td><td><img src="${s.image}" style="width:60px;"></td><td><button class="btn btn-sm btn-danger" onclick="window.deleteSchedule('${doc.id}')">حذف</button></td></tr>`;
-        });
+            let groupName = 'عام';
+            if (s.groupId) {
+                try {
+                    const gDoc = await db.collection('groups').doc(s.groupId).get();
+                    if (gDoc.exists) groupName = gDoc.data().name;
+                } catch(e) {}
+            }
+            html += `<tr><td>${s.grade}</td><td>${groupName}</td><td><img src="${s.image}" style="width:60px;"></td><td><button class="btn btn-sm btn-danger" onclick="window.deleteSchedule('${doc.id}')">حذف</button></td></tr>`;
+        }
         html += '</tbody></table></div></div>';
         container.innerHTML = html;
     }
     window.showAddSchedule = () => {
         container.innerHTML = `<div class="card fade-in-up"><h3>إضافة جدول حصص</h3>
-        <select id="schedGrade"><option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
+        <select id="schedGrade" onchange="window.onSchedGradeChange()">
+            <option value="">اختر الصف</option>
+            <option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option>
+            <option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option>
+        </select><br><br>
+        <select id="schedGroup" style="width:100%; margin-bottom:12px;">
+            <option value="">اختر مجموعة (اختياري - للكل)</option>
+        </select><br>
         <button class="btn" onclick="window.uploadScheduleImage()">📷 رفع صورة الجدول</button>
         <input type="hidden" id="schedImage"><div id="schedPreview"></div><br><br>
         <button class="btn btn-primary" onclick="window.saveSchedule()">حفظ</button></div>`;
     };
-    window.uploadScheduleImage = () => {
-        window.cloudinary.openUploadWidget({
-            cloudName: CLOUDINARY_CLOUD, uploadPreset: CLOUDINARY_PRESET, apiKey: CLOUDINARY_KEY,
-            sources: ['local','camera'], multiple: false, resourceType: 'image',
-            clientAllowedFormats: ['png','jpg','jpeg'], maxFileSize: 5000000, language: 'ar'
-        }, (error, result) => {
-            if(!error && result?.event==='success') {
-                document.getElementById('schedImage').value = result.info.secure_url;
-                document.getElementById('schedPreview').innerHTML = `<img src="${result.info.secure_url}" style="max-width:200px;">`;
-            }
-        });
+    window.onSchedGradeChange = async () => {
+        const grade = document.getElementById('schedGrade').value;
+        await populateGroupSelect('schedGroup', grade);
     };
     window.saveSchedule = async () => {
         const grade = document.getElementById('schedGrade')?.value;
+        const groupId = document.getElementById('schedGroup')?.value || null;
         const image = document.getElementById('schedImage')?.value;
-        if(!grade || !image) return alert('أكمل');
-        await db.collection('schedules').add({grade, image, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+        if(!grade || !image) return alert('أكمل البيانات');
+        await db.collection('schedules').add({grade, groupId, image, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
         renderSchedules();
     };
     window.deleteSchedule = async id => { if(confirm('حذف؟')) { await db.collection('schedules').doc(id).delete(); renderSchedules(); } };
