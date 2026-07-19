@@ -9,16 +9,11 @@
     <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
     <style>
         :root {
-            --bg-deep: #020012;
-            --glass-bg: rgba(255,255,255,0.03);
-            --glass-border: rgba(255,255,255,0.06);
-            --glass-hover: rgba(255,255,255,0.05);
-            --text-primary: #f0f0f7;
-            --text-secondary: #b8b8d4;
-            --text-muted: #6e6e90;
-            --accent-gradient: linear-gradient(135deg, #4da8da, #7c5ce7, #22d3bb);
-            --accent-2: #7c5ce7; --accent-3: #22d3bb; --danger: #ef4444;
-            --radius-lg: 24px; --radius-md: 16px; --font: 'Cairo', sans-serif;
+            --bg-deep: #020012; --glass-bg: rgba(255,255,255,0.03); --glass-border: rgba(255,255,255,0.06);
+            --glass-hover: rgba(255,255,255,0.05); --text-primary: #f0f0f7; --text-secondary: #b8b8d4;
+            --text-muted: #6e6e90; --accent-gradient: linear-gradient(135deg, #4da8da, #7c5ce7, #22d3bb);
+            --accent-2: #7c5ce7; --accent-3: #22d3bb; --danger: #ef4444; --radius-lg: 24px; --radius-md: 16px;
+            --font: 'Cairo', sans-serif; --transition: 0.3s ease;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:var(--font); background:var(--bg-deep); color:var(--text-primary); display:flex; min-height:100vh; }
@@ -110,8 +105,8 @@
 
     // تحميل اللوجو
     async function loadLogo() {
-        const doc = await db.collection('settings').doc('platform').get();
-        if (doc.exists && doc.data().logo) {
+        const doc = await db.collection('settings').doc('platform').get().catch(() => null);
+        if (doc && doc.exists && doc.data().logo) {
             document.getElementById('sidebarLogo').innerHTML = `<img src="${doc.data().logo}" alt="لوجو">`;
         }
     }
@@ -144,10 +139,12 @@
         if (!select) return;
         select.innerHTML = '<option value="">اختر مجموعة (اختياري)</option>';
         if (grade) {
-            const snap = await db.collection('groups').where('grade','==',grade).get();
-            snap.forEach(doc => {
-                select.innerHTML += `<option value="${doc.id}" ${selectedGroupId===doc.id?'selected':''}>${doc.data().name}</option>`;
-            });
+            const snap = await db.collection('groups').where('grade','==',grade).get().catch(() => ({ empty: true, docs: [] }));
+            if (!snap.empty) {
+                snap.forEach(doc => {
+                    select.innerHTML += `<option value="${doc.id}" ${selectedGroupId===doc.id?'selected':''}>${doc.data().name}</option>`;
+                });
+            }
         }
     }
 
@@ -163,13 +160,74 @@
             const s = doc.data();
             html += `<tr><td>${s.name||''}</td><td>${s.grade||''}</td><td>${s.phone||''}</td>
             <td><span class="badge ${s.status==='مفعل'?'badge-success':s.status==='محظور'?'badge-danger':'badge-warning'}">${s.status||'قيد المراجعة'}</span></td>
-            <td><button class="btn btn-sm" onclick="window.updateStudent('${doc.id}','مفعل')">تفعيل</button>
-            <button class="btn btn-sm btn-danger" onclick="window.updateStudent('${doc.id}','محظور')">حظر</button></td></tr>`;
+            <td>
+                <button class="btn btn-sm" onclick="viewStudentDetails('${doc.id}')">📋 تفاصيل</button>
+                <button class="btn btn-sm" onclick="window.updateStudent('${doc.id}','مفعل')">تفعيل</button>
+                <button class="btn btn-sm btn-danger" onclick="window.updateStudent('${doc.id}','محظور')">حظر</button>
+            </td></tr>`;
         });
         html += '</tbody></table></div></div>';
         container.innerHTML = html;
     }
     window.updateStudent = async (id, status) => { await db.collection('students').doc(id).update({status}); renderStudents(); };
+
+    // ✅ تفاصيل الطالب الشاملة
+    window.viewStudentDetails = async (studentId) => {
+        const studentDoc = await db.collection('students').doc(studentId).get();
+        if (!studentDoc.exists) { alert('الطالب غير موجود'); return; }
+        const student = studentDoc.data();
+
+        // مجموعته
+        let groupName = '—';
+        const groupsSnap = await db.collection('groups').where('grade','==',student.grade).get().catch(() => ({ empty: true, docs: [] }));
+        if (!groupsSnap.empty) {
+            for (const gDoc of groupsSnap.docs) {
+                if (gDoc.data().students?.includes(studentId)) { groupName = gDoc.data().name; break; }
+            }
+        }
+
+        // الواجبات المخصصة له
+        const allAssignments = [];
+        const assignSnap = await db.collection('assignments').where('grade','==',student.grade).get().catch(() => ({ empty: true, docs: [] }));
+        if (!assignSnap.empty) assignSnap.forEach(doc => allAssignments.push({id: doc.id, ...doc.data()}));
+
+        // تسليمات الطالب
+        const submissionsSnap = await db.collection('assignmentSubmissions').where('studentId','==',studentId).get().catch(() => ({ empty: true, docs: [] }));
+        const submissions = {};
+        if (!submissionsSnap.empty) submissionsSnap.forEach(doc => { const s = doc.data(); submissions[s.assignmentId] = {id: doc.id, ...s}; });
+
+        // الامتحانات
+        const examResultsSnap = await db.collection('examResults').where('studentId','==',studentId).orderBy('createdAt','desc').get().catch(() => ({ empty: true, docs: [] }));
+        const examResults = [];
+        if (!examResultsSnap.empty) examResultsSnap.forEach(doc => examResults.push({id: doc.id, ...doc.data()}));
+
+        let html = `<div class="card fade-in-up"><h3>📋 تفاصيل الطالب: ${student.name}</h3>
+        <p><strong>الصف:</strong> ${student.grade} | <strong>المجموعة:</strong> ${groupName}</p>
+        <p><strong>الهاتف:</strong> ${student.phone||'—'} | <strong>ولي الأمر:</strong> ${student.parentPhone||'—'}</p>
+        <p><strong>البريد:</strong> ${student.email||'—'} | <strong>الحالة:</strong> <span class="badge ${student.status==='مفعل'?'badge-success':'badge-warning'}">${student.status}</span></p>
+        <button class="btn" onclick="renderStudents()">رجوع للقائمة</button></div>`;
+
+        // جدول الواجبات
+        html += `<div class="card fade-in-up"><h3>📄 الواجبات</h3>
+        <table><thead><tr><th>الواجب</th><th>الحالة</th><th>الدرجة</th><th>تعليق</th></tr></thead><tbody>`;
+        allAssignments.forEach(a => {
+            const sub = submissions[a.id];
+            html += `<tr><td>${a.title||'—'}</td>
+            <td>${sub ? (sub.score!==undefined ? '✅ مصحح' : '⏳ مسلّم') : '❌ لم يسلم'}</td>
+            <td>${sub?.score ?? '—'}</td><td>${sub?.feedback ?? '—'}</td></tr>`;
+        });
+        html += '</tbody></table></div>';
+
+        // جدول الامتحانات
+        html += `<div class="card fade-in-up"><h3>📝 الامتحانات</h3>
+        <table><thead><tr><th>الامتحان</th><th>المحاولة</th><th>الدرجة</th><th>النسبة</th><th>التاريخ</th></tr></thead><tbody>`;
+        examResults.forEach(r => {
+            html += `<tr><td>${r.examName||''}</td><td>${r.attempt||1}</td><td>${r.score||0}/${r.total||0}</td><td>${r.percentage||0}%</td><td>${r.createdAt?.toDate?.().toLocaleDateString('ar-EG')||''}</td></tr>`;
+        });
+        html += '</tbody></table></div>';
+
+        container.innerHTML = html;
+    };
 
     // ========== المجموعات ==========
     async function renderGroups() {
@@ -231,8 +289,8 @@
             const a = doc.data();
             let groupName = '—';
             if(a.groupId) {
-                const gDoc = await db.collection('groups').doc(a.groupId).get();
-                if(gDoc.exists) groupName = gDoc.data().name;
+                const gDoc = await db.collection('groups').doc(a.groupId).get().catch(() => null);
+                if(gDoc && gDoc.exists) groupName = gDoc.data().name;
             }
             html += `<tr><td>${a.title||''}</td><td>${a.grade}</td><td>${groupName}</td><td>${a.images?.length||0}</td>
             <td><button class="btn btn-sm" onclick="window.viewAssignmentSubmissions('${doc.id}')">تسليمات</button>
@@ -361,8 +419,7 @@
             clientAllowedFormats: ['png','jpg','jpeg'], maxFileSize: 5000000, language: 'ar'
         }, (error, result) => {
             if(!error && result?.event==='success') {
-                const imgInput = document.getElementById('eqImg_'+qId);
-                if(imgInput) imgInput.value = result.info.secure_url;
+                document.getElementById('eqImg_'+qId).value = result.info.secure_url;
                 const q = window.examQuestions.find(q=>q.id===qId);
                 if(q) q.image = result.info.secure_url;
             }
@@ -378,7 +435,7 @@
     };
     window.deleteExam = async id => { if(confirm('حذف؟')) { await db.collection('exams').doc(id).delete(); renderExams(); } };
 
-    // ========== جداول الحصص (مع تحديد المجموعة) ==========
+    // ========== جداول الحصص ==========
     async function renderSchedules() {
         const snap = await db.collection('schedules').get();
         let html = `<div class="card fade-in-up"><h3>📅 جداول الحصص</h3><button class="btn btn-primary" onclick="window.showAddSchedule()">➕ إضافة جدول</button></div>`;
@@ -386,11 +443,9 @@
         for (const doc of snap.docs) {
             const s = doc.data();
             let groupName = 'عام';
-            if (s.groupId) {
-                try {
-                    const gDoc = await db.collection('groups').doc(s.groupId).get();
-                    if (gDoc.exists) groupName = gDoc.data().name;
-                } catch(e) {}
+            if(s.groupId) {
+                const gDoc = await db.collection('groups').doc(s.groupId).get().catch(() => null);
+                if(gDoc && gDoc.exists) groupName = gDoc.data().name;
             }
             html += `<tr><td>${s.grade}</td><td>${groupName}</td><td><img src="${s.image}" style="width:60px;"></td><td><button class="btn btn-sm btn-danger" onclick="window.deleteSchedule('${doc.id}')">حذف</button></td></tr>`;
         }
@@ -399,14 +454,8 @@
     }
     window.showAddSchedule = () => {
         container.innerHTML = `<div class="card fade-in-up"><h3>إضافة جدول حصص</h3>
-        <select id="schedGrade" onchange="window.onSchedGradeChange()">
-            <option value="">اختر الصف</option>
-            <option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option>
-            <option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option>
-        </select><br><br>
-        <select id="schedGroup" style="width:100%; margin-bottom:12px;">
-            <option value="">اختر مجموعة (اختياري - للكل)</option>
-        </select><br>
+        <select id="schedGrade" onchange="window.onSchedGradeChange()"><option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
+        <select id="schedGroup"><option value="">اختر مجموعة (اختياري)</option></select><br><br>
         <button class="btn" onclick="window.uploadScheduleImage()">📷 رفع صورة الجدول</button>
         <input type="hidden" id="schedImage"><div id="schedPreview"></div><br><br>
         <button class="btn btn-primary" onclick="window.saveSchedule()">حفظ</button></div>`;
@@ -419,7 +468,7 @@
         const grade = document.getElementById('schedGrade')?.value;
         const groupId = document.getElementById('schedGroup')?.value || null;
         const image = document.getElementById('schedImage')?.value;
-        if(!grade || !image) return alert('أكمل البيانات');
+        if(!grade || !image) return alert('أكمل');
         await db.collection('schedules').add({grade, groupId, image, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
         renderSchedules();
     };
@@ -429,7 +478,7 @@
     async function renderNotifications() {
         const snap = await db.collection('notifications').orderBy('createdAt','desc').get();
         let html = `<div class="card fade-in-up"><h3>🔔 الإشعارات</h3><button class="btn btn-primary" onclick="window.showAddNotification()">➕ إرسال إشعار</button></div>`;
-        html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>النص</th><th>المستهدف</th><th>تنتهي</th></tr></thead><tbody>';
+        html += '<div class="card fade-in-up"><table><thead><tr><th>النص</th><th>المستهدف</th><th>تنتهي</th></tr></thead><tbody>';
         snap.forEach(doc => {
             const n = doc.data();
             let target = n.targetGrade || 'عام';
@@ -437,17 +486,14 @@
             if(n.targetStudentId) target += ' (طالب)';
             html += `<tr><td>${n.body}</td><td>${target}</td><td>${n.expiresAt?.toDate?.().toLocaleString('ar-EG')||''}</td></tr>`;
         });
-        html += '</tbody></table></div></div>';
+        html += '</tbody></table></div>';
         container.innerHTML = html;
     }
     window.showAddNotification = () => {
         container.innerHTML = `<div class="card fade-in-up"><h3>إرسال إشعار</h3>
         <textarea id="notifBody" placeholder="نص الإشعار"></textarea><br><br>
-        <label>الصف</label>
         <select id="notifGrade" onchange="window.onNotifGradeChange()"><option value="all">الكل</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
-        <label>المجموعة (اختياري)</label>
         <select id="notifGroup" onchange="window.onNotifGroupChange()"><option value="">اختر مجموعة</option></select><br><br>
-        <label>طالب محدد (اختياري)</label>
         <select id="notifStudent"><option value="">اختر طالب</option></select><br><br>
         <label>تاريخ الانتهاء</label><input type="datetime-local" id="notifExpiry"><br><br>
         <button class="btn btn-primary" onclick="window.sendNotification()">إرسال</button></div>`;
@@ -462,12 +508,12 @@
         const studentSelect = document.getElementById('notifStudent');
         studentSelect.innerHTML = '<option value="">اختر طالب</option>';
         if(groupId) {
-            const groupDoc = await db.collection('groups').doc(groupId).get();
-            if(groupDoc.exists) {
+            const groupDoc = await db.collection('groups').doc(groupId).get().catch(() => null);
+            if(groupDoc && groupDoc.exists) {
                 const students = groupDoc.data().students || [];
                 for(const sid of students) {
-                    const sDoc = await db.collection('students').doc(sid).get();
-                    if(sDoc.exists) studentSelect.innerHTML += `<option value="${sid}">${sDoc.data().name}</option>`;
+                    const sDoc = await db.collection('students').doc(sid).get().catch(() => null);
+                    if(sDoc && sDoc.exists) studentSelect.innerHTML += `<option value="${sid}">${sDoc.data().name}</option>`;
                 }
             }
         }
@@ -497,7 +543,7 @@
         snap.forEach(doc => {
             const q = doc.data();
             html += `<div class="card fade-in-up">
-                <strong>${q.studentName}</strong>: ${q.text||''}
+                <strong>${q.studentName}</strong> (${q.grade}): ${q.text||''}
                 ${q.image?`<br><img src="${q.image}" style="max-width:200px;">`:''}
                 <div style="margin-top:8px;">الردود: ${(q.replies||[]).map(r=>`<div style="background:rgba(255,255,255,0.02); padding:4px;">${r.userName}: ${r.text}</div>`).join('')}</div>
                 <button class="btn btn-sm btn-danger" onclick="window.deleteQuestion('${doc.id}')">حذف</button>
@@ -509,8 +555,8 @@
 
     // ========== الإعدادات ==========
     async function renderSettings() {
-        const doc = await db.collection('settings').doc('platform').get();
-        const data = doc.exists ? doc.data() : {};
+        const doc = await db.collection('settings').doc('platform').get().catch(() => null);
+        const data = (doc && doc.exists) ? doc.data() : {};
         container.innerHTML = `<div class="card fade-in-up"><h3>⚙️ إعدادات المنصة</h3>
         <div class="form-group"><label>اسم المنصة</label><input id="setName" value="${data.name||'مستر عبدالله خليل'}"></div>
         <div class="form-group"><label>الشعار النصي</label><input id="setSlogan" value="${data.slogan||'كيمياء ببساطة'}"></div>
@@ -540,10 +586,8 @@
         else document.getElementById('sidebarLogo').innerHTML = 'ع';
     };
 
-    // التحميل الأولي
     renderStudents();
 
-    // Mobile toggle
     document.getElementById('menuToggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
