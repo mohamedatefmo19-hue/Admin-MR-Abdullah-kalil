@@ -41,6 +41,9 @@
         .btn-whatsapp:hover { background:#1da851; }
         .content { padding:24px; }
         .card { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:20px; backdrop-filter:blur(15px); margin-bottom:20px; }
+        .grade-filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+        .grade-filter-bar button { padding:6px 14px; border-radius:20px; font-size:0.78rem; font-weight:600; border:1.5px solid var(--glass-border); background:transparent; color:var(--text-secondary); cursor:pointer; transition:0.2s; }
+        .grade-filter-bar button.active { background:var(--accent-gradient); color:#fff; border-color:transparent; }
         .form-group { margin-bottom:16px; }
         .form-group label { display:block; font-size:0.85rem; margin-bottom:6px; color:var(--text-secondary); }
         .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border-radius:30px; border:1.5px solid var(--glass-border); background:rgba(255,255,255,0.04); color:#fff; font-family:var(--font); font-size:0.9rem; outline:none; }
@@ -74,6 +77,7 @@
         <a data-tab="schedules">📅 جداول الحصص</a>
         <a data-tab="notifications">🔔 الإشعارات</a>
         <a data-tab="questions">💬 الأسئلة</a>
+        <a data-tab="whatsapp">💬 واتساب</a>
         <a data-tab="settings">⚙️ الإعدادات</a>
     </nav>
 </aside>
@@ -101,11 +105,12 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const CLOUDINARY_CLOUD = "deaevfmvm", CLOUDINARY_PRESET = "ml_default", CLOUDINARY_KEY = "864215656447737";
+    const GRADES = ['الأول الإعدادي','الثاني الإعدادي','الثالث الإعدادي','الأول الثانوي','الثاني الثانوي','الثالث الثانوي'];
 
     const container = document.getElementById('adminContent');
     const sidebarLinks = document.querySelectorAll('.sidebar nav a');
+    let currentGradeFilter = 'all'; // تصفية الصف الحالية
 
-    // تحميل اللوجو
     async function loadLogo() {
         const doc = await db.collection('settings').doc('platform').get().catch(() => null);
         if (doc && doc.exists && doc.data().logo) {
@@ -114,12 +119,28 @@
     }
     loadLogo();
 
-    // تبديل الأقسام
+    // شريط تصفية الصفوف
+    function renderGradeFilterBar(onChangeCallback) {
+        return `
+        <div class="grade-filter-bar">
+            <button class="${currentGradeFilter === 'all' ? 'active' : ''}" onclick="setGradeFilter('all', arguments[0])">الكل</button>
+            ${GRADES.map(g => `<button class="${currentGradeFilter === g ? 'active' : ''}" onclick="setGradeFilter('${g}', arguments[0])">${g}</button>`).join('')}
+        </div>`;
+    }
+
+    window.setGradeFilter = function(grade, event) {
+        currentGradeFilter = grade;
+        // إعادة تحميل القسم الحالي
+        const activeTab = document.querySelector('.sidebar nav a.active');
+        if (activeTab) loadTab(activeTab.dataset.tab);
+    };
+
     sidebarLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             sidebarLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
+            currentGradeFilter = 'all'; // إعادة تعيين الفلتر عند تغيير القسم
             loadTab(link.dataset.tab);
         });
     });
@@ -133,11 +154,11 @@
             case 'schedules': renderSchedules(); break;
             case 'notifications': renderNotifications(); break;
             case 'questions': renderQuestions(); break;
+            case 'whatsapp': renderWhatsApp(); break;
             case 'settings': renderSettings(); break;
         }
     }
 
-    // دالة مساعدة: ملء قائمة المجموعات حسب الصف
     async function populateGroupSelect(selectId, grade, selectedGroupId = null) {
         const select = document.getElementById(selectId);
         if (!select) return;
@@ -145,20 +166,17 @@
         if (grade) {
             const snap = await db.collection('groups').where('grade','==',grade).get().catch(() => ({ empty: true, docs: [] }));
             if (!snap.empty) {
-                snap.forEach(doc => {
-                    select.innerHTML += `<option value="${doc.id}" ${selectedGroupId===doc.id?'selected':''}>${doc.data().name}</option>`;
-                });
+                snap.forEach(doc => select.innerHTML += `<option value="${doc.id}" ${selectedGroupId===doc.id?'selected':''}>${doc.data().name}</option>`);
             }
         }
     }
 
     // ==================== الطلاب ====================
     async function renderStudents() {
-        const snap = await db.collection('students').get();
-        let html = `<div class="card fade-in-up"><h3>👥 الطلاب (${snap.size})</h3>
-        <select id="studentFilter" onchange="filterStudents()" style="margin:12px 0; padding:8px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); color:#fff;">
-            <option value="">الكل</option><option>قيد المراجعة</option><option>مفعل</option><option>محظور</option>
-        </select>
+        let query = db.collection('students');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get();
+        let html = `<div class="card fade-in-up"><h3>👥 الطلاب (${snap.size})</h3>${renderGradeFilterBar()}
         <div style="overflow-x:auto;"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>`;
         snap.forEach(doc => {
             const s = doc.data();
@@ -174,18 +192,12 @@
         container.innerHTML = html;
     }
 
-    window.updateStudent = async (id, status) => {
-        await db.collection('students').doc(id).update({status});
-        renderStudents();
-    };
+    window.updateStudent = async (id, status) => { await db.collection('students').doc(id).update({status}); renderStudents(); };
 
-    // تفاصيل الطالب الشاملة
     window.viewStudentDetails = async (studentId) => {
         const studentDoc = await db.collection('students').doc(studentId).get();
         if (!studentDoc.exists) { alert('الطالب غير موجود'); return; }
         const student = studentDoc.data();
-
-        // مجموعته
         let groupName = '—';
         const groupsSnap = await db.collection('groups').where('grade','==',student.grade).get().catch(() => ({ empty: true, docs: [] }));
         if (!groupsSnap.empty) {
@@ -193,31 +205,21 @@
                 if (gDoc.data().students?.includes(studentId)) { groupName = gDoc.data().name; break; }
             }
         }
-
-        // الواجبات
         const allAssignments = [];
         const assignSnap = await db.collection('assignments').where('grade','==',student.grade).get().catch(() => ({ empty: true, docs: [] }));
         if (!assignSnap.empty) assignSnap.forEach(doc => allAssignments.push({id: doc.id, ...doc.data()}));
-
-        // تسليمات الواجبات
         const submissionsSnap = await db.collection('assignmentSubmissions').where('studentId','==',studentId).get().catch(() => ({ empty: true, docs: [] }));
         const submissions = {};
         if (!submissionsSnap.empty) submissionsSnap.forEach(doc => { const s = doc.data(); submissions[s.assignmentId] = {id: doc.id, ...s}; });
-
-        // الامتحانات
         const examResultsSnap = await db.collection('examResults').where('studentId','==',studentId).orderBy('createdAt','desc').get().catch(() => ({ empty: true, docs: [] }));
         const examResults = [];
         if (!examResultsSnap.empty) examResultsSnap.forEach(doc => examResults.push({id: doc.id, ...doc.data()}));
-
         const avgScore = examResults.length ? Math.round(examResults.reduce((a,b)=>a+(b.percentage||0),0)/examResults.length) : 0;
         const assignCount = Object.values(submissions).filter(s => s.score !== undefined).length;
-
-        // رسالة واتساب
         const lastThreeAssign = allAssignments.slice(-3).map(a => { const sub = submissions[a.id]; return `${a.title}: ${sub?.score ?? 'لم يسلم'}`; }).join('\n');
         const lastThreeExams = examResults.slice(-3).map(r => `${r.examName}: ${r.percentage||0}%`).join('\n');
         const whatsappMsg = `👤 تقرير الطالب: ${student.name}\n📚 الصف: ${student.grade}\n📊 متوسط الدرجات: ${avgScore}%\n✅ الواجبات المسلّمة: ${assignCount}\n\n📝 آخر 3 واجبات:\n${lastThreeAssign}\n\n📋 آخر 3 امتحانات:\n${lastThreeExams}\n\n📞 للتواصل: ${student.parentPhone||'غير متوفر'}`;
         const waUrl = `https://wa.me/${student.parentPhone||''}?text=${encodeURIComponent(whatsappMsg)}`;
-
         let html = `<div class="card fade-in-up"><h3>📋 تفاصيل الطالب: ${student.name}</h3>
         <p><strong>الصف:</strong> ${student.grade} | <strong>المجموعة:</strong> ${groupName}</p>
         <p><strong>الهاتف:</strong> ${student.phone||'—'} | <strong>ولي الأمر:</strong> ${student.parentPhone||'—'}</p>
@@ -226,37 +228,32 @@
             <button class="btn" onclick="renderStudents()">رجوع للقائمة</button>
             <a href="${waUrl}" target="_blank" class="btn btn-whatsapp">💬 واتساب ولي الأمر</a>
         </div></div>`;
-
-        // رسوم بيانية
         html += `<div class="card fade-in-up"><h3>📊 ملخص التقدم</h3>
         <div style="display:flex; gap:30px; justify-content:center; flex-wrap:wrap;">
             <div style="text-align:center;"><svg width="90" height="90" viewBox="0 0 36 36" style="transform:rotate(-90deg);"><circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="url(#g1)" stroke-width="2.5" stroke-dasharray="${avgScore},100" stroke-linecap="round"/><defs><linearGradient id="g1"><stop offset="0%" stop-color="#4da8da"/><stop offset="100%" stop-color="#22d3bb"/></linearGradient></defs></svg><div style="font-size:1.3rem;font-weight:800;">${avgScore}%</div><div style="color:var(--text-muted);">متوسط الدرجات</div></div>
             <div style="text-align:center;"><svg width="90" height="90" viewBox="0 0 36 36" style="transform:rotate(-90deg);"><circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="#7c5ce7" stroke-width="2.5" stroke-dasharray="${Math.min((assignCount/15)*100,100)},100" stroke-linecap="round"/></svg><div style="font-size:1.3rem;font-weight:800;">${assignCount}</div><div style="color:var(--text-muted);">واجبات مصححة</div></div>
             <div style="text-align:center;"><svg width="90" height="90" viewBox="0 0 36 36" style="transform:rotate(-90deg);"><circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-dasharray="${Math.min((examResults.length/10)*100,100)},100" stroke-linecap="round"/></svg><div style="font-size:1.3rem;font-weight:800;">${examResults.length}</div><div style="color:var(--text-muted);">امتحانات</div></div>
         </div></div>`;
-
-        // جدول الواجبات
         html += `<div class="card fade-in-up"><h3>📄 الواجبات</h3><table><thead><tr><th>الواجب</th><th>الحالة</th><th>الدرجة</th></tr></thead><tbody>`;
         allAssignments.forEach(a => { const sub = submissions[a.id]; html += `<tr><td>${a.title||'—'}</td><td>${sub ? (sub.score!==undefined ? '✅ مصحح' : '⏳ مسلّم') : '❌ لم يسلم'}</td><td>${sub?.score ?? '—'}</td></tr>`; });
         html += '</tbody></table></div>';
-
-        // جدول الامتحانات
         html += `<div class="card fade-in-up"><h3>📝 الامتحانات</h3><table><thead><tr><th>الامتحان</th><th>المحاولة</th><th>الدرجة</th><th>النسبة</th></tr></thead><tbody>`;
         examResults.forEach(r => { html += `<tr><td>${r.examName||''}</td><td>${r.attempt||1}</td><td>${r.score||0}/${r.total||0}</td><td>${r.percentage||0}%</td></tr>`; });
         html += '</tbody></table></div>';
-
         container.innerHTML = html;
     };
 
     // ==================== المجموعات ====================
     async function renderGroups() {
-        const snap = await db.collection('groups').get();
-        let html = `<div class="card fade-in-up"><h3>👨‍👩‍👧‍👦 المجموعات</h3>
+        let query = db.collection('groups');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get();
+        let html = `<div class="card fade-in-up"><h3>👨‍👩‍👧‍👦 المجموعات (${snap.size})</h3>${renderGradeFilterBar()}
         <button class="btn btn-primary" onclick="window.showAddGroup()">➕ إنشاء مجموعة</button>
         <div id="addGroupForm" style="display:none; margin-top:12px;">
             <input id="groupName" placeholder="اسم المجموعة" style="width:100%; padding:8px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); color:#fff; margin-bottom:8px;">
             <select id="groupGrade" style="width:100%; padding:8px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); color:#fff; margin-bottom:8px;">
-                <option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option>
+                <option value="">اختر الصف</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}
             </select>
             <button class="btn btn-primary" onclick="window.addGroup()">حفظ</button>
         </div></div>`;
@@ -287,7 +284,6 @@
         html += '<button class="btn" onclick="renderGroups()">رجوع</button></div>';
         container.innerHTML = html;
     };
-    // تقييد الطالب بمجموعة واحدة
     window.toggleStudentInGroup = async (groupId, studentId, add) => {
         const ref = db.collection('groups').doc(groupId);
         if (add) {
@@ -310,8 +306,11 @@
 
     // ==================== الواجبات ====================
     async function renderAssignments() {
-        const snap = await db.collection('assignments').get();
-        let html = `<div class="card fade-in-up"><h3>📄 الواجبات</h3><button class="btn btn-primary" onclick="window.showAddAssignment()">➕ إنشاء واجب</button></div>`;
+        let query = db.collection('assignments');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get();
+        let html = `<div class="card fade-in-up"><h3>📄 الواجبات (${snap.size})</h3>${renderGradeFilterBar()}
+        <button class="btn btn-primary" onclick="window.showAddAssignment()">➕ إنشاء واجب</button></div>`;
         html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>العنوان</th><th>الصف</th><th>المجموعة</th><th>الصور</th><th>إجراءات</th></tr></thead><tbody>';
         for (const doc of snap.docs) {
             const a = doc.data();
@@ -329,7 +328,7 @@
         container.innerHTML = `<div class="card fade-in-up"><h3>إنشاء واجب</h3>
         <input id="assignTitle" placeholder="العنوان" style="width:100%; margin-bottom:8px;">
         <select id="assignGrade" onchange="window.onAssignGradeChange()" style="width:100%; margin-bottom:8px;">
-            <option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option>
+            <option value="">اختر الصف</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}
         </select>
         <select id="assignGroup" style="width:100%; margin-bottom:8px;"><option value="">اختر مجموعة (اختياري)</option></select>
         <button class="btn" onclick="window.uploadAssignmentImages()">📷 رفع صور الأسئلة</button>
@@ -382,8 +381,11 @@
 
     // ==================== الامتحانات ====================
     async function renderExams() {
-        const snap = await db.collection('exams').get();
-        let html = `<div class="card fade-in-up"><h3>📝 الامتحانات</h3><button class="btn btn-primary" onclick="window.showAddExam()">➕ إنشاء امتحان</button></div>`;
+        let query = db.collection('exams');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get();
+        let html = `<div class="card fade-in-up"><h3>📝 الامتحانات (${snap.size})</h3>${renderGradeFilterBar()}
+        <button class="btn btn-primary" onclick="window.showAddExam()">➕ إنشاء امتحان</button></div>`;
         html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>الاسم</th><th>الصف</th><th>الزمن</th><th>الأسئلة</th><th>إجراءات</th></tr></thead><tbody>';
         snap.forEach(doc => {
             const e = doc.data();
@@ -425,7 +427,7 @@
         window.examQuestions = [];
         container.innerHTML = `<div class="card fade-in-up"><h3>إنشاء امتحان</h3>
         <input id="examName" placeholder="اسم الامتحان"><br><br>
-        <select id="examGrade"><option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
+        <select id="examGrade"><option value="">اختر الصف</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}</select><br><br>
         <input id="examTime" type="number" placeholder="الوقت بالدقائق" value="60"><br><br>
         <div id="examQuestionsList"></div>
         <button class="btn" onclick="window.addExamQuestion()">➕ إضافة سؤال</button><br><br>
@@ -484,8 +486,11 @@
 
     // ==================== جداول الحصص ====================
     async function renderSchedules() {
-        const snap = await db.collection('schedules').get();
-        let html = `<div class="card fade-in-up"><h3>📅 جداول الحصص</h3><button class="btn btn-primary" onclick="window.showAddSchedule()">➕ إضافة جدول</button></div>`;
+        let query = db.collection('schedules');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get();
+        let html = `<div class="card fade-in-up"><h3>📅 جداول الحصص (${snap.size})</h3>${renderGradeFilterBar()}
+        <button class="btn btn-primary" onclick="window.showAddSchedule()">➕ إضافة جدول</button></div>`;
         html += '<div class="card fade-in-up"><div style="overflow-x:auto;"><table><thead><tr><th>الصف</th><th>المجموعة</th><th>الصورة</th><th>إجراءات</th></tr></thead><tbody>';
         for (const doc of snap.docs) {
             const s = doc.data();
@@ -498,7 +503,7 @@
     }
     window.showAddSchedule = () => {
         container.innerHTML = `<div class="card fade-in-up"><h3>إضافة جدول حصص</h3>
-        <select id="schedGrade" onchange="window.onSchedGradeChange()"><option value="">اختر الصف</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
+        <select id="schedGrade" onchange="window.onSchedGradeChange()"><option value="">اختر الصف</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}</select><br><br>
         <select id="schedGroup"><option value="">اختر مجموعة (اختياري)</option></select><br><br>
         <button class="btn" onclick="window.uploadScheduleImage()">📷 رفع صورة الجدول</button>
         <input type="hidden" id="schedImage"><div id="schedPreview"></div><br><br>
@@ -544,7 +549,7 @@
     window.showAddNotification = () => {
         container.innerHTML = `<div class="card fade-in-up"><h3>إرسال إشعار</h3>
         <textarea id="notifBody" placeholder="نص الإشعار"></textarea><br><br>
-        <select id="notifGrade" onchange="window.onNotifGradeChange()"><option value="all">الكل</option><option>الأول الإعدادي</option><option>الثاني الإعدادي</option><option>الثالث الإعدادي</option><option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option></select><br><br>
+        <select id="notifGrade" onchange="window.onNotifGradeChange()"><option value="all">الكل</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}</select><br><br>
         <select id="notifGroup" onchange="window.onNotifGroupChange()"><option value="">اختر مجموعة</option></select><br><br>
         <select id="notifStudent"><option value="">اختر طالب</option></select><br><br>
         <label>تاريخ الانتهاء</label><input type="datetime-local" id="notifExpiry"><br><br>
@@ -589,8 +594,10 @@
 
     // ==================== الأسئلة ====================
     async function renderQuestions() {
-        const snap = await db.collection('questions').orderBy('createdAt','desc').get();
-        let html = '<div class="card fade-in-up"><h3>💬 الأسئلة والمناقشات</h3></div>';
+        let query = db.collection('questions').orderBy('createdAt','desc');
+        if (currentGradeFilter !== 'all') query = query.where('grade', '==', currentGradeFilter);
+        const snap = await query.get().catch(() => ({ empty: true, docs: [] }));
+        let html = `<div class="card fade-in-up"><h3>💬 الأسئلة والمناقشات</h3>${renderGradeFilterBar()}</div>`;
         snap.forEach(doc => {
             const q = doc.data();
             html += `<div class="card fade-in-up">
@@ -603,6 +610,77 @@
         container.innerHTML = html;
     }
     window.deleteQuestion = async id => { if(confirm('حذف؟')) { await db.collection('questions').doc(id).delete(); renderQuestions(); } };
+
+    // ==================== واتساب ====================
+    async function renderWhatsApp() {
+        container.innerHTML = `<div class="card fade-in-up"><h3>💬 إرسال رسالة واتساب</h3>
+        <div class="form-group"><label>نص الرسالة</label><textarea id="waMessage" placeholder="اكتب الرسالة..."></textarea></div>
+        <div class="form-group"><label>الصف المستهدف</label>
+        <select id="waGrade" onchange="window.onWaGradeChange()"><option value="all">الكل</option>${GRADES.map(g=>`<option>${g}</option>`).join('')}</select></div>
+        <div class="form-group"><label>المجموعة (اختياري)</label><select id="waGroup" onchange="window.onWaGroupChange()"><option value="">اختر مجموعة</option></select></div>
+        <div class="form-group"><label>طالب محدد (اختياري)</label><select id="waStudent"><option value="">اختر طالب</option></select></div>
+        <button class="btn btn-primary" onclick="window.sendWhatsApp()">📤 إرسال عبر واتساب</button>
+        <div id="waPreview" style="margin-top:16px;"></div></div>`;
+    }
+    window.onWaGradeChange = async () => {
+        const grade = document.getElementById('waGrade').value;
+        await populateGroupSelect('waGroup', grade==='all'?'':grade);
+        document.getElementById('waStudent').innerHTML = '<option value="">اختر طالب</option>';
+    };
+    window.onWaGroupChange = async () => {
+        const groupId = document.getElementById('waGroup').value;
+        const studentSelect = document.getElementById('waStudent');
+        studentSelect.innerHTML = '<option value="">اختر طالب</option>';
+        if(groupId) {
+            const groupDoc = await db.collection('groups').doc(groupId).get().catch(() => null);
+            if(groupDoc && groupDoc.exists) {
+                for(const sid of (groupDoc.data().students||[])) {
+                    const sDoc = await db.collection('students').doc(sid).get().catch(() => null);
+                    if(sDoc && sDoc.exists) studentSelect.innerHTML += `<option value="${sid}">${sDoc.data().name}</option>`;
+                }
+            }
+        }
+    };
+    window.sendWhatsApp = async () => {
+        const message = document.getElementById('waMessage')?.value.trim();
+        if(!message) return alert('اكتب رسالة');
+        const grade = document.getElementById('waGrade').value;
+        const groupId = document.getElementById('waGroup').value;
+        const studentId = document.getElementById('waStudent').value;
+        let recipients = [];
+        if(studentId) {
+            const doc = await db.collection('students').doc(studentId).get();
+            if(doc.exists && doc.data().parentPhone) recipients.push(doc.data().parentPhone);
+        } else if(groupId) {
+            const groupDoc = await db.collection('groups').doc(groupId).get();
+            if(groupDoc.exists) {
+                for(const sid of (groupDoc.data().students||[])) {
+                    const sDoc = await db.collection('students').doc(sid).get();
+                    if(sDoc.exists && sDoc.data().parentPhone) recipients.push(sDoc.data().parentPhone);
+                }
+            }
+        } else if(grade !== 'all') {
+            const snap = await db.collection('students').where('grade','==',grade).get();
+            snap.forEach(doc => {
+                if(doc.data().parentPhone) recipients.push(doc.data().parentPhone);
+            });
+        } else {
+            const snap = await db.collection('students').get();
+            snap.forEach(doc => {
+                if(doc.data().parentPhone) recipients.push(doc.data().parentPhone);
+            });
+        }
+        if(recipients.length === 0) return alert('لا يوجد أرقام متاحة');
+        // فتح روابط واتساب متعددة (سيطلب المتصفح إذن)
+        let count = 0;
+        const delay = 800;
+        recipients.forEach((phone, index) => {
+            setTimeout(() => {
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            }, index * delay);
+        });
+        document.getElementById('waPreview').innerHTML = `<p style="color:var(--accent-3);">✅ جاري إرسال الرسالة إلى ${recipients.length} رقم...</p>`;
+    };
 
     // ==================== الإعدادات ====================
     async function renderSettings() {
@@ -634,13 +712,10 @@
         await db.collection('settings').doc('platform').set({name, slogan, logo}, {merge: true});
         alert('تم الحفظ');
         if(logo) document.getElementById('sidebarLogo').innerHTML = `<img src="${logo}" alt="لوجو">`;
-        else document.getElementById('sidebarLogo').innerHTML = 'ع';
     };
 
-    // ==================== بدء التشغيل ====================
     renderStudents();
 
-    // زر القائمة للموبايل
     document.getElementById('menuToggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
